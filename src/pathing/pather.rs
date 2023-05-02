@@ -1,5 +1,5 @@
-use crate::{cesr::{
-    core::{
+use crate::{
+    cesr::core::{
         bexter::{rawify, tables as bexter, Bext},
         matter::{tables as matter, Matter},
         sadder::Sadder,
@@ -7,9 +7,9 @@ use crate::{cesr::{
         serder::Serder,
         util::REB64_STRING,
     },
-    data::Value,
+    data::{dat, Value},
     error::{err, Error, Result},
-}, dat};
+};
 
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -23,7 +23,11 @@ pub struct Pather {
 
 impl Default for Pather {
     fn default() -> Self {
-        Pather { code: matter::Codex::StrB64_L0.to_string(), raw: vec![], size: 0 }
+        Pather {
+            code: matter::Codex::StrB64_L0.to_string(),
+            raw: vec![],
+            size: 0,
+        }
     }
 }
 
@@ -137,8 +141,11 @@ impl Pather {
         let mut root_path = root.path()?.to_vec()?;
         let mut path = self.path()?.to_vec()?;
 
-        let hashmap: std::collections::HashMap<String, usize> =
-            path.iter().enumerate().map(|(x, y)| (y.to_string().unwrap(), x)).collect();
+        let hashmap: std::collections::HashMap<String, usize> = path
+            .iter()
+            .enumerate()
+            .map(|(x, y)| (y.to_string().unwrap(), x))
+            .collect();
 
         if root_path.len() > path.len() {
             return Ok(self.clone());
@@ -166,7 +173,17 @@ impl Pather {
         if val.to_string().is_ok() {
             let result = val.to_string()?;
             // validate said
-            Saider::new(None, None, None, None, None, None, None, Some(&result), None)?;
+            Saider::new(
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                None,
+                Some(&result),
+                None,
+            )?;
             Ok(result)
         } else if val.to_map().is_ok() || val.to_vec().is_ok() {
             val.to_json()
@@ -184,7 +201,11 @@ impl Pather {
         let path = path.to_vec()?;
         for e in &path {
             let p = e.to_string();
-            let p = if let Ok(p) = p { p } else { e.to_i64()?.to_string() };
+            let p = if let Ok(p) = p {
+                p
+            } else {
+                e.to_i64()?.to_string()
+            };
 
             if !REB64.is_match(&p) {
                 return err!(Error::Value("invalid base64".to_string()));
@@ -210,7 +231,9 @@ impl Pather {
             if result.is_ok() {
                 let i = result?;
                 if i >= val.len() {
-                    return err!(Error::Value(format!("invalid map index {i}, larger than size")));
+                    return err!(Error::Value(format!(
+                        "invalid map index {i}, larger than size"
+                    )));
                 }
                 val[i].clone()
             } else if idx.is_empty() {
@@ -225,7 +248,9 @@ impl Pather {
             let val = val.to_vec()?;
             let i = idx.parse::<usize>()?;
             if i >= val.len() {
-                return err!(Error::Value(format!("invalid array index {i}, larger than size")));
+                return err!(Error::Value(format!(
+                    "invalid array index {i}, larger than size"
+                )));
             }
             val[i].clone()
         } else {
@@ -267,8 +292,8 @@ impl Matter for Pather {
 #[cfg(test)]
 mod test {
     use super::Pather;
-    use crate::cesr::{
-        core::{
+    use crate::{
+        cesr::core::{
             bexter::Bext,
             matter::{tables as matter, Matter},
             saider::Saider,
@@ -304,9 +329,16 @@ mod test {
         assert!(Pather::new(None, Some("@!"), None, None, None, None, None).is_err());
         assert!(Pather::new(None, None, None, None, None, None, None).is_err());
 
-        let pather =
-            Pather::new(None, None, Some(matter::Codex::StrB64_L0), Some(b"00"), None, None, None)
-                .unwrap();
+        let pather = Pather::new(
+            None,
+            None,
+            Some(matter::Codex::StrB64_L0),
+            Some(b"00"),
+            None,
+            None,
+            None,
+        )
+        .unwrap();
         assert!(pather.path().is_err());
 
         let sad = dat!({

@@ -1,4 +1,4 @@
-use crate::cesr::error::{err, Error, Result};
+use crate::error::{err, Error, Result};
 
 #[derive(Debug, PartialEq)]
 pub(crate) struct Sizage {
@@ -10,21 +10,96 @@ pub(crate) struct Sizage {
 
 pub(crate) fn sizage(s: &str) -> Result<Sizage> {
     Ok(match s {
-        "-A" => Sizage { hs: 2, ss: 2, fs: 4, ls: 0 },
-        "-B" => Sizage { hs: 2, ss: 2, fs: 4, ls: 0 },
-        "-C" => Sizage { hs: 2, ss: 2, fs: 4, ls: 0 },
-        "-D" => Sizage { hs: 2, ss: 2, fs: 4, ls: 0 },
-        "-E" => Sizage { hs: 2, ss: 2, fs: 4, ls: 0 },
-        "-F" => Sizage { hs: 2, ss: 2, fs: 4, ls: 0 },
-        "-G" => Sizage { hs: 2, ss: 2, fs: 4, ls: 0 },
-        "-H" => Sizage { hs: 2, ss: 2, fs: 4, ls: 0 },
-        "-I" => Sizage { hs: 2, ss: 2, fs: 4, ls: 0 },
-        "-J" => Sizage { hs: 2, ss: 2, fs: 4, ls: 0 },
-        "-K" => Sizage { hs: 2, ss: 2, fs: 4, ls: 0 },
-        "-L" => Sizage { hs: 2, ss: 2, fs: 4, ls: 0 },
-        "-V" => Sizage { hs: 2, ss: 2, fs: 4, ls: 0 },
-        "-0V" => Sizage { hs: 3, ss: 5, fs: 8, ls: 0 },
-        "--AAA" => Sizage { hs: 5, ss: 3, fs: 8, ls: 0 },
+        "-A" => Sizage {
+            hs: 2,
+            ss: 2,
+            fs: 4,
+            ls: 0,
+        },
+        "-B" => Sizage {
+            hs: 2,
+            ss: 2,
+            fs: 4,
+            ls: 0,
+        },
+        "-C" => Sizage {
+            hs: 2,
+            ss: 2,
+            fs: 4,
+            ls: 0,
+        },
+        "-D" => Sizage {
+            hs: 2,
+            ss: 2,
+            fs: 4,
+            ls: 0,
+        },
+        "-E" => Sizage {
+            hs: 2,
+            ss: 2,
+            fs: 4,
+            ls: 0,
+        },
+        "-F" => Sizage {
+            hs: 2,
+            ss: 2,
+            fs: 4,
+            ls: 0,
+        },
+        "-G" => Sizage {
+            hs: 2,
+            ss: 2,
+            fs: 4,
+            ls: 0,
+        },
+        "-H" => Sizage {
+            hs: 2,
+            ss: 2,
+            fs: 4,
+            ls: 0,
+        },
+        "-I" => Sizage {
+            hs: 2,
+            ss: 2,
+            fs: 4,
+            ls: 0,
+        },
+        "-J" => Sizage {
+            hs: 2,
+            ss: 2,
+            fs: 4,
+            ls: 0,
+        },
+        "-K" => Sizage {
+            hs: 2,
+            ss: 2,
+            fs: 4,
+            ls: 0,
+        },
+        "-L" => Sizage {
+            hs: 2,
+            ss: 2,
+            fs: 4,
+            ls: 0,
+        },
+        "-V" => Sizage {
+            hs: 2,
+            ss: 2,
+            fs: 4,
+            ls: 0,
+        },
+        "-0V" => Sizage {
+            hs: 3,
+            ss: 5,
+            fs: 8,
+            ls: 0,
+        },
+        "--AAA" => Sizage {
+            hs: 5,
+            ss: 3,
+            fs: 8,
+            ls: 0,
+        },
         _ => return err!(Error::UnknownSizage(s.to_string())),
     })
 }

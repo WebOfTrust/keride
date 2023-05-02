@@ -1,5 +1,5 @@
 use crate::cesr::core::matter::{tables as matter, Matter};
-use crate::cesr::error::{err, Error, Result};
+use crate::error::{err, Error, Result};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Dater {
@@ -10,7 +10,11 @@ pub struct Dater {
 
 impl Default for Dater {
     fn default() -> Self {
-        Dater { raw: vec![], code: matter::Codex::DateTime.to_string(), size: 0 }
+        Dater {
+            raw: vec![],
+            code: matter::Codex::DateTime.to_string(),
+            size: 0,
+        }
     }
 }
 
@@ -49,10 +53,18 @@ impl Dater {
         qb64: Option<&str>,
         qb2: Option<&[u8]>,
     ) -> Result<Self> {
-        let code = if let Some(code) = code { Some(code) } else { Some(matter::Codex::DateTime) };
+        let code = if let Some(code) = code {
+            Some(code)
+        } else {
+            Some(matter::Codex::DateTime)
+        };
 
         let dater: Self = if raw.is_none() && qb64b.is_none() && qb64.is_none() && qb2.is_none() {
-            let b64 = if let Some(dts) = dts { iso_8601_to_b64(dts) } else { now_as_b64() };
+            let b64 = if let Some(dts) = dts {
+                iso_8601_to_b64(dts)
+            } else {
+                now_as_b64()
+            };
             let qb64 = format!("{}{}", matter::Codex::DateTime, &b64);
             Matter::new(code, raw, qb64b, Some(&qb64), qb2)?
         } else {
@@ -141,7 +153,10 @@ mod test {
     #[test]
     fn new() {
         let dts = "2020-08-22T17:50:09.988921-01:00";
-        let qb64 = Dater::new(Some(dts), None, None, None, None, None).unwrap().qb64().unwrap();
+        let qb64 = Dater::new(Some(dts), None, None, None, None, None)
+            .unwrap()
+            .qb64()
+            .unwrap();
         assert!(Dater::new(Some(dts), None, None, None, None, None,).is_ok());
         assert!(Dater::new(None, None, None, None, Some(&qb64), None,).is_ok());
     }
@@ -198,8 +213,14 @@ mod test {
     }
 
     #[rstest]
-    #[case(matter::Codex::Big, b"\xdbM\xb4\xfbO>\xdbd\xf5\xed\xcetsO]\xf7\xcf=\xdb_\xb4\xd5\xcd4")]
-    #[case(matter::Codex::DateTime, b"\xdbM\xb4\xfbO>\xdbd\xf5\xed\xcetsO]\xf7\xcf=\xdb_\xb4\xd5")]
+    #[case(
+        matter::Codex::Big,
+        b"\xdbM\xb4\xfbO>\xdbd\xf5\xed\xcetsO]\xf7\xcf=\xdb_\xb4\xd5\xcd4"
+    )]
+    #[case(
+        matter::Codex::DateTime,
+        b"\xdbM\xb4\xfbO>\xdbd\xf5\xed\xcetsO]\xf7\xcf=\xdb_\xb4\xd5"
+    )]
     #[case(
         matter::Codex::DateTime,
         b"\xdbM\xb4\xfbO>\xdbd\xf5\xed\xcetsO]\xf7\xcf=\xdb_\xb4\xd5\xff"

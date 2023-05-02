@@ -1,5 +1,5 @@
-use crate::cesr::data::{dat, Value};
-use crate::cesr::error::{err, Error, Result};
+use crate::data::{dat, Value};
+use crate::error::{err, Error, Result};
 
 use lazy_static::lazy_static;
 use regex::Regex;
@@ -148,10 +148,17 @@ pub fn deversify(vs: &str) -> Result<DeversifyResult> {
         }
 
         if !SERIALS.contains(&kind.as_str()) {
-            return err!(Error::Validation(format!("invalid serialization kind {kind}")));
+            return err!(Error::Validation(format!(
+                "invalid serialization kind {kind}"
+            )));
         }
 
-        return Ok(DeversifyResult { ident, kind, version: Version { major, minor }, size });
+        return Ok(DeversifyResult {
+            ident,
+            kind,
+            version: Version { major, minor },
+            size,
+        });
     }
 
     err!(Error::Validation(format!("invalid version string {vs}")))
@@ -174,7 +181,11 @@ pub fn sizeify(ked: &Value, kind: Option<&str>) -> Result<SizeifyResult> {
         )));
     }
 
-    let kind = if let Some(kind) = kind { kind.to_string() } else { result.kind };
+    let kind = if let Some(kind) = kind {
+        kind.to_string()
+    } else {
+        result.kind
+    };
 
     if !SERIALS.contains(&kind.as_str()) {
         return err!(Error::Value(format!("invalid serialization kind {kind}")));
@@ -186,7 +197,11 @@ pub fn sizeify(ked: &Value, kind: Option<&str>) -> Result<SizeifyResult> {
     let start = match REVER.shortest_match(&String::from_utf8(raw.clone())?) {
         Some(m) => m - VERSION_FULL_SIZE,
         // unreachable - deversify has been called which ensures this will match
-        None => return err!(Error::Value(format!("invalid version string in raw = {raw:?}"))),
+        None => {
+            return err!(Error::Value(format!(
+                "invalid version string in raw = {raw:?}"
+            )))
+        }
     };
 
     if start > MAXIMUM_START_SIZE {
@@ -197,7 +212,12 @@ pub fn sizeify(ked: &Value, kind: Option<&str>) -> Result<SizeifyResult> {
 
     let fore = raw[..start].to_vec();
     let mut back = raw[start + VERSION_FULL_SIZE..].to_vec();
-    let vs = versify(Some(&result.ident), Some(&result.version), Some(&kind), Some(size as u32))?;
+    let vs = versify(
+        Some(&result.ident),
+        Some(&result.version),
+        Some(&kind),
+        Some(size as u32),
+    )?;
 
     let mut raw = fore;
     raw.append(&mut vs.as_bytes().to_vec());
@@ -205,13 +225,21 @@ pub fn sizeify(ked: &Value, kind: Option<&str>) -> Result<SizeifyResult> {
 
     if raw.len() != size {
         // unreachable as we constructed this
-        return err!(Error::Value(format!("malformed version string size, version string = {vs}")));
+        return err!(Error::Value(format!(
+            "malformed version string size, version string = {vs}"
+        )));
     }
 
     let mut ked = ked.clone();
     ked["v"] = dat!(&vs);
 
-    Ok(SizeifyResult { raw, ident: result.ident, kind, ked, version: result.version })
+    Ok(SizeifyResult {
+        raw,
+        ident: result.ident,
+        kind,
+        ked,
+        version: result.version,
+    })
 }
 
 pub fn versify(
@@ -230,7 +258,9 @@ pub fn versify(
     }
 
     if !SERIALS.contains(&kind) {
-        return err!(Error::Validation(format!("invalid serialization kind {kind}")));
+        return err!(Error::Validation(format!(
+            "invalid serialization kind {kind}"
+        )));
     }
 
     Ok(format!(
@@ -250,7 +280,9 @@ pub(crate) fn loads(raw: &[u8], size: Option<u32>, kind: Option<&str>) -> Result
                     serde_json::from_str(&String::from_utf8(raw[..(size as usize)].to_vec())?)?;
                 Ok(Value::from(&v))
             }
-            _ => err!(Error::Validation(format!("invalid serialization kind {kind}"))),
+            _ => err!(Error::Validation(format!(
+                "invalid serialization kind {kind}"
+            ))),
         }
     } else {
         match kind {
@@ -258,7 +290,9 @@ pub(crate) fn loads(raw: &[u8], size: Option<u32>, kind: Option<&str>) -> Result
                 let v: serde_json::Value = serde_json::from_str(&String::from_utf8(raw.to_vec())?)?;
                 Ok(Value::from(&v))
             }
-            _ => err!(Error::Validation(format!("invalid serialization kind {kind}"))),
+            _ => err!(Error::Validation(format!(
+                "invalid serialization kind {kind}"
+            ))),
         }
     }
 }
@@ -286,7 +320,11 @@ pub fn sniff(raw: &[u8]) -> Result<SniffResult> {
     let raw = &String::from_utf8(raw.to_vec())?;
     let start = match REVER.shortest_match(raw) {
         Some(m) => m - VERSION_FULL_SIZE,
-        None => return err!(Error::Value(format!("invalid version string in raw = {raw:?}"))),
+        None => {
+            return err!(Error::Value(format!(
+                "invalid version string in raw = {raw:?}"
+            )))
+        }
     };
 
     if start > MAXIMUM_START_SIZE {
@@ -305,16 +343,23 @@ pub fn sniff(raw: &[u8]) -> Result<SniffResult> {
     let version = Version { major, minor };
 
     if !SERIALS.contains(&kind.as_str()) {
-        return err!(Error::Validation(format!("invalid serialization kind {kind}")));
+        return err!(Error::Validation(format!(
+            "invalid serialization kind {kind}"
+        )));
     }
 
-    Ok(SniffResult { ident, kind, version, size })
+    Ok(SniffResult {
+        ident,
+        kind,
+        version,
+        size,
+    })
 }
 
 #[cfg(test)]
 mod test {
     use crate::cesr::core::common;
-    use crate::cesr::data::dat;
+    use crate::data::dat;
     use rstest::rstest;
 
     #[test]
@@ -327,7 +372,10 @@ mod test {
     fn sniff_unhappy_paths() {
         assert!(common::sniff(&[]).is_err()); // minimum 29 octets
         assert!(common::sniff(
-            dat!({"v":"version string must be valid!"}).to_json().unwrap().as_bytes()
+            dat!({"v":"version string must be valid!"})
+                .to_json()
+                .unwrap()
+                .as_bytes()
         )
         .is_err());
         assert!(common::sniff(
@@ -353,7 +401,9 @@ mod test {
         assert!(common::sizeify(&dat!({}), None).is_err());
         assert!(common::sizeify(&dat!({"v":"KERIffJSON000000_"}), None).is_err());
         assert!(common::sizeify(&dat!({"v":"KERI10JSON000000_"}), Some("CESR")).is_err());
-        assert!(common::sizeify(&dat!({"i":"filler entry","v":"KERI10JSON000000_"}), None).is_err());
+        assert!(
+            common::sizeify(&dat!({"i":"filler entry","v":"KERI10JSON000000_"}), None).is_err()
+        );
     }
 
     #[test]

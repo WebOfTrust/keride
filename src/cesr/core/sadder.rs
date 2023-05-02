@@ -3,8 +3,8 @@ use crate::cesr::core::{
     matter::{tables as matter, Matter},
     saider::Saider,
 };
-use crate::cesr::data::Value;
-use crate::cesr::error::{err, Error, Result};
+use crate::data::Value;
+use crate::error::{err, Error, Result};
 
 #[derive(Debug, Clone, PartialEq)]
 struct ExhaleResult {
@@ -91,7 +91,9 @@ pub trait Sadder: Default + Clone {
         } else if let Some(sad) = sad {
             sadder = sad.clone();
         } else {
-            return err!(Error::Value("improper initialzation. need sad, raw or ked.".to_string()));
+            return err!(Error::Value(
+                "improper initialzation. need sad, raw or ked.".to_string()
+            ));
         }
 
         Ok(sadder)
@@ -220,7 +222,7 @@ mod test {
         sadder::Sadder,
         saider::Saider,
     };
-    use crate::cesr::data::{dat, Value};
+    use crate::data::{dat, Value};
 
     #[derive(Debug, Clone, PartialEq)]
     struct TestSadder {
@@ -352,11 +354,22 @@ mod test {
         assert!(TestSadder::new(None, None, None, None, None).is_err());
 
         assert_eq!(saider.code(), matter::Codex::Blake3_256);
-        assert!(
-            TestSadder::new(Some(matter::Codex::Blake2b_256), Some(raw), None, None, None).is_err()
-        );
-        assert!(TestSadder::new(Some(matter::Codex::Blake2b_256), None, None, Some(&ked), None)
-            .is_err());
+        assert!(TestSadder::new(
+            Some(matter::Codex::Blake2b_256),
+            Some(raw),
+            None,
+            None,
+            None
+        )
+        .is_err());
+        assert!(TestSadder::new(
+            Some(matter::Codex::Blake2b_256),
+            None,
+            None,
+            Some(&ked),
+            None
+        )
+        .is_err());
     }
 
     #[test]

@@ -1,4 +1,4 @@
-use crate::cesr::error::{err, Error, Result};
+use crate::error::{err, Error, Result};
 
 pub const REB64_STRING: &str = "^[A-Za-z0-9\\-_]*$";
 

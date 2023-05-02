@@ -1,6 +1,6 @@
 use crate::cesr::core::matter::{tables as matter, Matter};
 use crate::cesr::core::verfer::Verfer;
-use crate::cesr::error::{err, Error, Result};
+use crate::error::{err, Error, Result};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Cigar {

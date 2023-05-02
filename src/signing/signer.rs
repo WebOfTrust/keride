@@ -8,10 +8,10 @@ use crate::cesr::core::{
     verfer::Verfer,
 };
 use crate::cesr::crypto::sign;
-use crate::cesr::error::{err, Error, Result};
+use crate::error::{err, Error, Result};
 
 /// ```rust
-/// use cesride::{Signer, Indexer, Matter};
+/// use keride::{signing::Signer, cesr::{Indexer, Matter}};
 /// use std::error::Error;
 /// // here we verify that a cigar primitive and a siger primitive have the same underlying
 /// // cryptographic material
@@ -105,7 +105,11 @@ impl Signer {
         let mut signer: Signer = if qb64b.is_none() && qb64.is_none() && qb2.is_none() {
             let code = code.unwrap_or(matter::Codex::Ed25519_Seed);
             validate_code(code)?;
-            let mut raw = if let Some(raw) = raw { raw.to_vec() } else { sign::generate(code)? };
+            let mut raw = if let Some(raw) = raw {
+                raw.to_vec()
+            } else {
+                sign::generate(code)?
+            };
             let matter = Matter::new(Some(code), Some(&raw), None, None, None)?;
             raw.zeroize();
             matter
@@ -152,7 +156,14 @@ impl Signer {
         };
 
         let sig = sign::sign(&self.code(), &self.raw(), ser)?;
-        Cigar::new(Some(&self.verfer()), Some(code), Some(&sig), None, None, None)
+        Cigar::new(
+            Some(&self.verfer()),
+            Some(code),
+            Some(&sig),
+            None,
+            None,
+            None,
+        )
     }
 
     pub fn sign_indexed(
@@ -259,9 +270,7 @@ mod test {
         indexer::{tables as indexer, Indexer},
         matter::{tables as matter, Matter},
     };
-    use crate::signing::{
-        signer::Signer
-    };
+    use crate::signing::signer::Signer;
     use rstest::rstest;
 
     #[test]
@@ -321,12 +330,18 @@ mod test {
         let signer = Signer::new_with_raw(seed, None, Some(signer_code)).unwrap();
 
         assert_eq!(signer.code(), signer_code);
-        assert_eq!(signer.raw().len(), matter::raw_size(signer_code).unwrap() as usize);
+        assert_eq!(
+            signer.raw().len(),
+            matter::raw_size(signer_code).unwrap() as usize
+        );
         assert_eq!(signer.raw(), seed);
         assert_eq!(signer.qb64().unwrap(), signer_qb64);
 
         assert_eq!(signer.verfer().code(), verfer_code);
-        assert_eq!(signer.verfer().raw().len(), matter::raw_size(verfer_code).unwrap() as usize);
+        assert_eq!(
+            signer.verfer().raw().len(),
+            matter::raw_size(verfer_code).unwrap() as usize
+        );
         assert_eq!(signer.verfer().qb64().unwrap(), verfer_qb64);
     }
 
@@ -383,25 +398,37 @@ mod test {
         let cigar = signer.sign_unindexed(ser).unwrap();
 
         assert_eq!(signer.code(), signer_code);
-        assert_eq!(signer.raw().len(), matter::raw_size(signer_code).unwrap() as usize);
+        assert_eq!(
+            signer.raw().len(),
+            matter::raw_size(signer_code).unwrap() as usize
+        );
         assert_eq!(signer.raw(), seed);
         assert_eq!(signer.qb64().unwrap(), signer_qb64);
 
         assert_eq!(signer.verfer().code(), verfer_code);
-        assert_eq!(signer.verfer().raw().len(), matter::raw_size(verfer_code).unwrap() as usize);
+        assert_eq!(
+            signer.verfer().raw().len(),
+            matter::raw_size(verfer_code).unwrap() as usize
+        );
         assert_eq!(signer.verfer().raw(), public_key);
         assert_eq!(signer.verfer().qb64().unwrap(), verfer_qb64);
 
         // the signatures we generate for ecdsa contain a random element and differ each time
         // so we test that the one generated verifies
         assert_eq!(cigar.code(), cigar_code);
-        assert_eq!(cigar.raw().len(), matter::raw_size(cigar_code).unwrap() as usize);
+        assert_eq!(
+            cigar.raw().len(),
+            matter::raw_size(cigar_code).unwrap() as usize
+        );
         assert!(signer.verfer().verify(&cigar.raw(), ser).unwrap());
 
         // and then we test that a precomputed signature verifies
         let cigar = Cigar::new(None, Some(cigar_code), Some(signature), None, None, None).unwrap();
         assert_eq!(cigar.code(), cigar_code);
-        assert_eq!(cigar.raw().len(), matter::raw_size(cigar_code).unwrap() as usize);
+        assert_eq!(
+            cigar.raw().len(),
+            matter::raw_size(cigar_code).unwrap() as usize
+        );
         assert_eq!(cigar.raw(), signature);
         assert_eq!(cigar.qb64().unwrap(), cigar_qb64);
         assert!(signer.verfer().verify(&cigar.raw(), ser).unwrap());
@@ -418,15 +445,33 @@ mod test {
     ) {
         let signer = Signer::new(Some(false), Some(code), None, None, None, None).unwrap();
 
-        assert!(
-            Signer::new(Some(true), None, None, Some(&signer.qb64b().unwrap()), None, None).is_ok()
-        );
-        assert!(
-            Signer::new(Some(true), None, None, None, Some(&signer.qb64().unwrap()), None).is_ok()
-        );
-        assert!(
-            Signer::new(Some(true), None, None, None, None, Some(&signer.qb2().unwrap())).is_ok()
-        );
+        assert!(Signer::new(
+            Some(true),
+            None,
+            None,
+            Some(&signer.qb64b().unwrap()),
+            None,
+            None
+        )
+        .is_ok());
+        assert!(Signer::new(
+            Some(true),
+            None,
+            None,
+            None,
+            Some(&signer.qb64().unwrap()),
+            None
+        )
+        .is_ok());
+        assert!(Signer::new(
+            Some(true),
+            None,
+            None,
+            None,
+            None,
+            Some(&signer.qb2().unwrap())
+        )
+        .is_ok());
     }
 
     #[test]
@@ -462,9 +507,15 @@ mod test {
         let ser = b"abcdefghijklmnopqrstuvwxyz0123456789";
         let bad_ser = b"abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG";
 
-        let signer =
-            Signer::new(Some(true), Some(matter::Codex::ECDSA_256k1_Seed), None, None, None, None)
-                .unwrap();
+        let signer = Signer::new(
+            Some(true),
+            Some(matter::Codex::ECDSA_256k1_Seed),
+            None,
+            None,
+            None,
+            None,
+        )
+        .unwrap();
 
         let cigar = signer.sign_unindexed(ser).unwrap();
         assert_eq!(cigar.code(), matter::Codex::ECDSA_256k1_Sig);
@@ -477,9 +528,15 @@ mod test {
         let ser = b"abcdefghijklmnopqrstuvwxyz0123456789";
         let bad_ser = b"abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG";
 
-        let signer =
-            Signer::new(Some(true), Some(matter::Codex::ECDSA_256r1_Seed), None, None, None, None)
-                .unwrap();
+        let signer = Signer::new(
+            Some(true),
+            Some(matter::Codex::ECDSA_256r1_Seed),
+            None,
+            None,
+            None,
+            None,
+        )
+        .unwrap();
 
         let cigar = signer.sign_unindexed(ser).unwrap();
         assert_eq!(cigar.code(), matter::Codex::ECDSA_256r1_Sig);
@@ -551,9 +608,15 @@ mod test {
         let ser = b"abcdefghijklmnopqrstuvwxyz0123456789";
         let bad_ser = b"abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG";
 
-        let signer =
-            Signer::new(Some(true), Some(matter::Codex::ECDSA_256k1_Seed), None, None, None, None)
-                .unwrap();
+        let signer = Signer::new(
+            Some(true),
+            Some(matter::Codex::ECDSA_256k1_Seed),
+            None,
+            None,
+            None,
+            None,
+        )
+        .unwrap();
 
         let siger = signer.sign_indexed(ser, only, index, input_ondex).unwrap();
         assert_eq!(siger.code(), siger_code);
@@ -583,9 +646,15 @@ mod test {
         let ser = b"abcdefghijklmnopqrstuvwxyz0123456789";
         let bad_ser = b"abcdefghijklmnopqrstuvwxyz0123456789ABCDEFG";
 
-        let signer =
-            Signer::new(Some(true), Some(matter::Codex::ECDSA_256r1_Seed), None, None, None, None)
-                .unwrap();
+        let signer = Signer::new(
+            Some(true),
+            Some(matter::Codex::ECDSA_256r1_Seed),
+            None,
+            None,
+            None,
+            None,
+        )
+        .unwrap();
 
         let siger = signer.sign_indexed(ser, only, index, input_ondex).unwrap();
         assert_eq!(siger.code(), siger_code);
@@ -607,7 +676,14 @@ mod test {
             None
         )
         .is_err());
-        assert!(Signer::new(Some(false), Some(matter::Codex::Ed25519N), None, None, None, None)
-            .is_err());
+        assert!(Signer::new(
+            Some(false),
+            Some(matter::Codex::Ed25519N),
+            None,
+            None,
+            None,
+            None
+        )
+        .is_err());
     }
 }

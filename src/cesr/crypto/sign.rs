@@ -1,5 +1,5 @@
 use crate::cesr::core::matter::tables as matter;
-use crate::cesr::error::{err, Error, Result};
+use crate::error::{err, Error, Result};
 
 pub(crate) fn generate(code: &str) -> Result<Vec<u8>> {
     match code {
@@ -77,7 +77,7 @@ mod ed25519 {
     use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
     use rand_core::OsRng;
 
-    use crate::cesr::error::Result;
+    use crate::error::Result;
 
     pub(crate) fn generate() -> Result<Vec<u8>> {
         let mut csprng = OsRng {};
@@ -123,7 +123,7 @@ mod ecdsa_256k1 {
     };
     use rand_core::OsRng;
 
-    use crate::cesr::error::Result;
+    use crate::error::Result;
 
     pub(crate) fn generate() -> Result<Vec<u8>> {
         let mut csprng = OsRng {};
@@ -161,7 +161,7 @@ mod ecdsa_256r1 {
     };
     use rand_core::OsRng;
 
-    use crate::cesr::error::Result;
+    use crate::error::Result;
 
     pub(crate) fn generate() -> Result<Vec<u8>> {
         let mut csprng = OsRng {};
@@ -200,7 +200,11 @@ mod test {
 
     #[rstest]
     fn end_to_end(
-        #[values(matter::Codex::Ed25519, matter::Codex::ECDSA_256k1, matter::Codex::ECDSA_256r1)]
+        #[values(
+            matter::Codex::Ed25519,
+            matter::Codex::ECDSA_256k1,
+            matter::Codex::ECDSA_256r1
+        )]
         code: &str,
     ) {
         let ser = b"abcdefghijklmnopqrstuvwxyz";

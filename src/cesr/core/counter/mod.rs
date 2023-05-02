@@ -1,7 +1,7 @@
 pub mod tables;
 
 use crate::cesr::core::util;
-use crate::cesr::error::{err, Error, Result};
+use crate::error::{err, Error, Result};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Counter {
@@ -35,7 +35,9 @@ impl Counter {
         } else if let Some(qb2) = qb2 {
             Self::new_with_qb2(qb2)
         } else {
-            err!(Error::Validation("need either code and count, qb64b, qb64 or qb2".to_string()))
+            err!(Error::Validation(
+                "need either code and count, qb64b, qb64 or qb2".to_string()
+            ))
         }
     }
 
@@ -48,7 +50,11 @@ impl Counter {
     }
 
     pub fn count_as_b64(&self, length: usize) -> Result<String> {
-        let length = if length == 0 { tables::sizage(&self.code())?.ss as usize } else { length };
+        let length = if length == 0 {
+            tables::sizage(&self.code())?.ss as usize
+        } else {
+            length
+        };
         util::u32_to_b64(self.count(), length)
     }
 
@@ -128,7 +134,10 @@ impl Counter {
             )));
         }
 
-        Ok(Counter { code: code.to_string(), count })
+        Ok(Counter {
+            code: code.to_string(),
+            count,
+        })
     }
 
     pub fn new_with_qb64(qb64: &str) -> Result<Self> {
@@ -310,7 +319,10 @@ impl Counter {
 
 impl Default for Counter {
     fn default() -> Self {
-        Counter { code: "".to_string(), count: 0 }
+        Counter {
+            code: "".to_string(),
+            count: 0,
+        }
     }
 }
 
@@ -500,9 +512,12 @@ mod test {
         );
         assert!(Counter::sem_ver_str_to_b64("1.2.3.4").is_err());
         assert!(Counter::sem_ver_str_to_b64("bad.semantic.version").is_err());
-        assert!((Counter { code: counter::Codex::ControllerIdxSigs.to_string(), count: 64 * 64 })
-            .qb64()
-            .is_err());
+        assert!((Counter {
+            code: counter::Codex::ControllerIdxSigs.to_string(),
+            count: 64 * 64
+        })
+        .qb64()
+        .is_err());
 
         assert!(Counter::new(None, None, None, None, Some(""), None).is_err());
         assert!(Counter::new(None, None, None, None, Some("--"), None).is_err());
@@ -528,7 +543,10 @@ mod test {
     #[rstest]
     #[case(counter::Codex::ControllerIdxSigs, 1)]
     fn qb64b(#[case] code: &str, #[case] count: u32) {
-        let c = Counter { code: code.to_string(), count };
+        let c = Counter {
+            code: code.to_string(),
+            count,
+        };
         let qb64b = c.qb64b().unwrap();
         assert!(Counter::new(None, None, None, Some(&qb64b), None, None).is_ok());
     }

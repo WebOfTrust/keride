@@ -1,5 +1,5 @@
-use crate::cesr::{
-    core::{
+use crate::{
+    cesr::core::{
         common::{Identage, Ids, Ilkage, Serialage, Version, CURRENT_VERSION},
         diger::Diger,
         matter::tables as matter,
@@ -65,7 +65,13 @@ impl Serder {
             let r = self.ked[label].to_vec();
             if r.is_ok() {
                 for key in r? {
-                    result.push(Verfer::new(None, None, None, Some(&key.to_string()?), None)?);
+                    result.push(Verfer::new(
+                        None,
+                        None,
+                        None,
+                        Some(&key.to_string()?),
+                        None,
+                    )?);
                 }
             }
         }
@@ -82,7 +88,14 @@ impl Serder {
             let r = self.ked[label].to_vec();
             if r.is_ok() {
                 for key in r? {
-                    result.push(Diger::new(None, None, None, None, Some(&key.to_string()?), None)?);
+                    result.push(Diger::new(
+                        None,
+                        None,
+                        None,
+                        None,
+                        Some(&key.to_string()?),
+                        None,
+                    )?);
                 }
             }
         }
@@ -97,7 +110,13 @@ impl Serder {
         let label = Ids::b;
         if map.contains_key(label) {
             for witness in self.ked[label].to_vec()? {
-                result.push(Verfer::new(None, None, None, Some(&witness.to_string()?), None)?)
+                result.push(Verfer::new(
+                    None,
+                    None,
+                    None,
+                    Some(&witness.to_string()?),
+                    None,
+                )?)
             }
         }
 
@@ -133,7 +152,15 @@ impl Serder {
     pub fn sner(&self) -> Result<Number> {
         let label = Ids::s;
 
-        Number::new(None, Some(&self.ked[label].to_string()?), None, None, None, None, None)
+        Number::new(
+            None,
+            Some(&self.ked[label].to_string()?),
+            None,
+            None,
+            None,
+            None,
+            None,
+        )
     }
 
     pub fn sn(&self) -> Result<u128> {
@@ -275,8 +302,8 @@ impl Sadder for Serder {
 
 #[cfg(test)]
 pub(crate) mod test {
-    use crate::{cesr::{
-        core::{
+    use crate::{
+        cesr::core::{
             common::{
                 sniff, versify, Identage, Ids, Ilkage, Serialage, Version, CURRENT_VERSION,
                 MINIMUM_SNIFF_SIZE, VERSION_FULL_SIZE,
@@ -288,10 +315,10 @@ pub(crate) mod test {
             serder::Serder,
             tholder::Tholder,
         },
-        data::Value,
+        data::{dat, Value},
         error::{err, Error, Result},
-    }, dat};
-    use crate::prefexing::prefixer::Prefixer;
+        prefexing::prefixer::Prefixer,
+    };
 
     #[test]
     fn convenience() {
@@ -329,8 +356,14 @@ pub(crate) mod test {
         assert_eq!(serder.ked(), e1);
         assert_eq!(serder.kind(), Serialage::JSON);
         assert_eq!(serder.version(), *CURRENT_VERSION);
-        assert_eq!(serder.said().unwrap(), "EIM66TjBMfwPnbwK7oZqbZyGz9nOeVmQHeH3NZxrsk8F");
-        assert_eq!(serder.saidb().unwrap(), b"EIM66TjBMfwPnbwK7oZqbZyGz9nOeVmQHeH3NZxrsk8F");
+        assert_eq!(
+            serder.said().unwrap(),
+            "EIM66TjBMfwPnbwK7oZqbZyGz9nOeVmQHeH3NZxrsk8F"
+        );
+        assert_eq!(
+            serder.saidb().unwrap(),
+            b"EIM66TjBMfwPnbwK7oZqbZyGz9nOeVmQHeH3NZxrsk8F"
+        );
         assert_eq!(serder.size(), 111);
         assert_eq!(serder.verfers().unwrap(), []);
         assert_eq!(serder.raw(), b"{\"v\":\"KERI10JSON00006f_\",\"d\":\"EIM66TjBMfwPnbwK7oZqbZyGz9nOeVmQHeH3NZxrsk8F\",\"i\":\"ABCDEFG\",\"s\":\"0001\",\"t\":\"rot\"}");
@@ -479,8 +512,14 @@ pub(crate) mod test {
         });
 
         let srdr = Serder::new(None, None, None, Some(&ked), None).unwrap();
-        assert_eq!(srdr.said().unwrap(), "EBAjyPZ8Ed4XXl5cVZhqAy7SuaGivQp0WqQKVXvg7oqd");
-        assert_eq!(srdr.saidb().unwrap(), b"EBAjyPZ8Ed4XXl5cVZhqAy7SuaGivQp0WqQKVXvg7oqd");
+        assert_eq!(
+            srdr.said().unwrap(),
+            "EBAjyPZ8Ed4XXl5cVZhqAy7SuaGivQp0WqQKVXvg7oqd"
+        );
+        assert_eq!(
+            srdr.saidb().unwrap(),
+            b"EBAjyPZ8Ed4XXl5cVZhqAy7SuaGivQp0WqQKVXvg7oqd"
+        );
 
         let ked = dat!({
             "v": "KERI10JSON000000_",
@@ -603,7 +642,11 @@ pub(crate) mod test {
         let intive = intive.unwrap_or(false);
 
         let vs = &versify(None, Some(version), Some(kind), Some(0))?;
-        let ilk = if delpre.is_none() { Ilkage::icp } else { Ilkage::dip };
+        let ilk = if delpre.is_none() {
+            Ilkage::icp
+        } else {
+            Ilkage::dip
+        };
         let sner = Number::new_with_num(0)?;
 
         let sith = if let Some(sith) = sith {
@@ -649,7 +692,9 @@ pub(crate) mod test {
         let mut unique = wits.to_vec();
         unique.dedup();
         if wits.len() != unique.len() {
-            return err!(Error::Value(format!("invalid wits = {wits:?}, has duplicates")));
+            return err!(Error::Value(format!(
+                "invalid wits = {wits:?}, has duplicates"
+            )));
         }
 
         let toader = if let Some(toad) = toad {

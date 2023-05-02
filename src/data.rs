@@ -8,7 +8,7 @@ use std::ops::{Index, IndexMut};
 use indexmap::IndexMap;
 use serde_json::{json, Value as JsonValue};
 
-use crate::cesr::error::{err, Error as CESRError, Result};
+use crate::error::{err, Error as CESRError, Result};
 
 pub type Array = Vec<Value>;
 pub type Object = IndexMap<String, Value>;
@@ -22,13 +22,21 @@ pub struct Number {
 
 impl From<f64> for Number {
     fn from(f: f64) -> Self {
-        Self { f, i: 0, float: true }
+        Self {
+            f,
+            i: 0,
+            float: true,
+        }
     }
 }
 
 impl From<i64> for Number {
     fn from(i: i64) -> Self {
-        Self { f: 0.0, i, float: false }
+        Self {
+            f: 0.0,
+            i,
+            float: false,
+        }
     }
 }
 
@@ -46,7 +54,9 @@ impl Value {
     pub fn to_bool(&self) -> Result<bool> {
         match self {
             Self::Boolean(boolean) => Ok(*boolean),
-            _ => err!(CESRError::Conversion("cannot convert to boolean".to_string())),
+            _ => err!(CESRError::Conversion(
+                "cannot convert to boolean".to_string()
+            )),
         }
     }
 
@@ -54,7 +64,9 @@ impl Value {
     pub fn to_string(&self) -> Result<String> {
         match self {
             Self::String(string) => Ok(string.clone()),
-            _ => err!(CESRError::Conversion("cannot convert to string".to_string())),
+            _ => err!(CESRError::Conversion(
+                "cannot convert to string".to_string()
+            )),
         }
     }
 
@@ -69,7 +81,9 @@ impl Value {
 
                 Ok(number.i)
             }
-            _ => err!(CESRError::Conversion("cannot convert to integer".to_string())),
+            _ => err!(CESRError::Conversion(
+                "cannot convert to integer".to_string()
+            )),
         }
     }
 
@@ -315,7 +329,9 @@ impl TryFrom<&Value> for String {
     fn try_from(v: &Value) -> Result<Self> {
         match v {
             Value::String(s) => Ok(s.clone()),
-            _ => err!(CESRError::Conversion("could not convert value to string".to_string())),
+            _ => err!(CESRError::Conversion(
+                "could not convert value to string".to_string()
+            )),
         }
     }
 }
@@ -326,7 +342,9 @@ impl TryFrom<&Value> for bool {
     fn try_from(v: &Value) -> Result<Self> {
         match v {
             Value::Boolean(b) => Ok(*b),
-            _ => err!(CESRError::Conversion("could not convert value to bool".to_string())),
+            _ => err!(CESRError::Conversion(
+                "could not convert value to bool".to_string()
+            )),
         }
     }
 }
@@ -343,7 +361,9 @@ impl TryFrom<&Value> for i64 {
                     Ok(n.f as i64)
                 }
             }
-            _ => err!(CESRError::Conversion("could not convert value to integer".to_string())),
+            _ => err!(CESRError::Conversion(
+                "could not convert value to integer".to_string()
+            )),
         }
     }
 }
@@ -360,7 +380,9 @@ impl TryFrom<&Value> for f64 {
                     Ok(n.i as f64)
                 }
             }
-            _ => err!(CESRError::Conversion("could not convert value to float".to_string())),
+            _ => err!(CESRError::Conversion(
+                "could not convert value to float".to_string()
+            )),
         }
     }
 }
@@ -371,7 +393,9 @@ impl TryFrom<&Value> for Vec<Value> {
     fn try_from(v: &Value) -> Result<Self> {
         match v {
             Value::Array(a) => Ok(a.clone()),
-            _ => err!(CESRError::Conversion("could not convert value to array".to_string())),
+            _ => err!(CESRError::Conversion(
+                "could not convert value to array".to_string()
+            )),
         }
     }
 }
@@ -382,7 +406,9 @@ impl TryFrom<&Value> for IndexMap<String, Value> {
     fn try_from(v: &Value) -> Result<Self> {
         match v {
             Value::Object(o) => Ok(o.clone()),
-            _ => err!(CESRError::Conversion("could not convert value to map".to_string())),
+            _ => err!(CESRError::Conversion(
+                "could not convert value to map".to_string()
+            )),
         }
     }
 }
@@ -546,19 +572,19 @@ macro_rules! dat {
     // core logic
 
     (null) => {
-        $crate::cesr::data::Value::Null
+        $crate::data::Value::Null
     };
 
     (true) => {
-        $crate::cesr::data::Value::Boolean(true)
+        $crate::data::Value::Boolean(true)
     };
 
     (false) => {
-        $crate::cesr::data::Value::Boolean(false)
+        $crate::data::Value::Boolean(false)
     };
 
     ([]) => {
-        $crate::cesr::data::Value::Array($crate::cesr::data::Array::new())
+        $crate::data::Value::Array($crate::data::Array::new())
     };
 
     ([ $($tt:tt)+ ]) => {{
@@ -566,17 +592,17 @@ macro_rules! dat {
     }};
 
     ({}) => {
-        $crate::cesr::data::Value::Object($crate::cesr::data::Object::new())
+        $crate::data::Value::Object($crate::data::Object::new())
     };
 
     ({ $($tt:tt)+ }) => {{
-        let mut object = $crate::cesr::data::Object::new();
+        let mut object = $crate::data::Object::new();
         dat!(@object object () ($($tt)+) ($($tt)+));
-        $crate::cesr::data::Value::Object(object)
+        $crate::data::Value::Object(object)
     }};
 
     ($other:expr) => {
-        $crate::cesr::data::Value::from($other)
+        $crate::data::Value::from($other)
     }
 }
 
@@ -584,7 +610,7 @@ macro_rules! dat {
 #[doc(hidden)]
 macro_rules! data_internal_vec {
     ($($content:tt)*) => {{
-        $crate::cesr::data::Value::Array(vec![$($content)*])
+        $crate::data::Value::Array(vec![$($content)*])
     }};
 }
 
@@ -604,7 +630,7 @@ pub use dat;
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::data::{dat, Value};
+    use crate::data::{dat, Value};
     use indexmap::IndexMap;
 
     #[test]
@@ -637,7 +663,10 @@ mod test {
         assert_eq!(d["thing"].to_i64().unwrap(), 2);
         assert_eq!(d["other thing"][1].to_f64().unwrap(), 1.666);
         assert_eq!(d["other thing"][0].to_string().unwrap(), "string");
-        assert_eq!(d["other thing"][4]["nested array"][1].to_vec().unwrap(), vec![]);
+        assert_eq!(
+            d["other thing"][4]["nested array"][1].to_vec().unwrap(),
+            vec![]
+        );
         assert_eq!(
             d["other thing"][4]["nested array"][0].to_map().unwrap(),
             indexmap::IndexMap::new()

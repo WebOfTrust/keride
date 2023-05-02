@@ -2,7 +2,7 @@ use base64::{engine::general_purpose as b64_engine, Engine};
 use zeroize::{Zeroize, Zeroizing};
 
 use crate::cesr::core::util;
-use crate::cesr::error::{err, Error, Result};
+use crate::error::{err, Error, Result};
 
 pub mod tables;
 
@@ -25,7 +25,9 @@ pub trait Matter: Default {
             let code = if let Some(code) = code {
                 code
             } else {
-                return err!(Error::EmptyMaterial("empty code specified with raw".to_string()));
+                return err!(Error::EmptyMaterial(
+                    "empty code specified with raw".to_string()
+                ));
             };
 
             Self::new_with_code_and_raw(code, raw)
@@ -36,7 +38,9 @@ pub trait Matter: Default {
         } else if let Some(qb2) = qb2 {
             Self::new_with_qb2(qb2)
         } else {
-            err!(Error::Validation("must specify raw and code, qb64b, qb64 or qb2".to_string()))
+            err!(Error::Validation(
+                "must specify raw and code, qb64b, qb64 or qb2".to_string()
+            ))
         }
     }
 
@@ -171,8 +175,11 @@ pub trait Matter: Default {
     }
 
     fn transferable(&self) -> bool {
-        const CODES: &[&str] =
-            &[tables::Codex::Ed25519N, tables::Codex::ECDSA_256k1N, tables::Codex::Ed448N];
+        const CODES: &[&str] = &[
+            tables::Codex::Ed25519N,
+            tables::Codex::ECDSA_256k1N,
+            tables::Codex::Ed448N,
+        ];
 
         !CODES.contains(&self.code().as_str())
     }
@@ -286,14 +293,20 @@ pub trait Matter: Default {
 
         // bcode
         let full = if n <= tables::SMALL_VRZ_BYTES {
-            (util::b64_to_u32(both)? << (2 * (cs % 4))).to_be_bytes().to_vec()
+            (util::b64_to_u32(both)? << (2 * (cs % 4)))
+                .to_be_bytes()
+                .to_vec()
         } else if n <= tables::LARGE_VRZ_BYTES {
-            (util::b64_to_u64(both)? << (2 * (cs % 4))).to_be_bytes().to_vec()
+            (util::b64_to_u64(both)? << (2 * (cs % 4)))
+                .to_be_bytes()
+                .to_vec()
         } else {
             // unreachable
             // programmer error - sizages will not permit cs > 8, thus:
             // (8 + 1) * 3 / 4 == 6, which is <= 6, always.
-            return err!(Error::InvalidCodeSize(format!("unsupported code size: cs = {cs}",)));
+            return err!(Error::InvalidCodeSize(format!(
+                "unsupported code size: cs = {cs}",
+            )));
         };
 
         let mut buffer = vec![0u8; raw.len() + (szg.ls + n) as usize];
@@ -526,7 +539,11 @@ mod test {
     }
     impl Default for TestMatter {
         fn default() -> Self {
-            TestMatter { raw: vec![], code: matter::Codex::Blake3_256.to_string(), size: 0 }
+            TestMatter {
+                raw: vec![],
+                code: matter::Codex::Blake3_256.to_string(),
+                size: 0,
+            }
         }
     }
     impl Matter for TestMatter {
@@ -624,7 +641,10 @@ mod test {
         assert_eq!(m.code, matter::Codex::Blake3_256);
 
         // partial override
-        let m = TestMatter { size: 3, ..Default::default() };
+        let m = TestMatter {
+            size: 3,
+            ..Default::default()
+        };
         assert_eq!(m.size, 3);
 
         // full override
@@ -781,9 +801,13 @@ mod test {
 
         // non-zeroed lead byte(s)
         assert!(TestMatter::new(None, None, None, Some("5AAB____"), None,).is_err());
-        assert!(TestMatter::new(None, None, None, None, Some(&[228, 0, 1, 255, 255, 255])).is_err());
+        assert!(
+            TestMatter::new(None, None, None, None, Some(&[228, 0, 1, 255, 255, 255])).is_err()
+        );
         assert!(TestMatter::new(None, None, None, Some("6AAB____"), None,).is_err());
-        assert!(TestMatter::new(None, None, None, None, Some(&[232, 0, 1, 255, 255, 255])).is_err());
+        assert!(
+            TestMatter::new(None, None, None, None, Some(&[232, 0, 1, 255, 255, 255])).is_err()
+        );
 
         // unexpected qb2 codes
         assert!(TestMatter::new(None, None, None, None, Some(&[0xf8]),).is_err()); // count code

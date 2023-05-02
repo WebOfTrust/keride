@@ -1,5 +1,5 @@
-use crate::cesr::{
-    core::{
+use crate::{
+    cesr::core::{
         bexter::{tables as bexter, Bext, Bexter},
         matter::{tables as matter, Matter},
         number::{tables as number, Number},

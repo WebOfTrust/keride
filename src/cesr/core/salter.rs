@@ -1,14 +1,16 @@
 use zeroize::{Zeroize, ZeroizeOnDrop};
 
-use crate::cesr::{
-    core::{
-        common::Tierage,
-        matter::{tables as matter, Matter},
+use crate::signing::signer::Signer;
+use crate::{
+    cesr::{
+        core::{
+            common::Tierage,
+            matter::{tables as matter, Matter},
+        },
+        crypto::{csprng, salt},
     },
-    crypto::{csprng, salt},
     error::{err, Error, Result},
 };
-use crate::signing::signer::Signer;
 #[derive(Debug, Clone, PartialEq, ZeroizeOnDrop)]
 pub struct Salter {
     #[zeroize(skip)]
@@ -86,7 +88,11 @@ impl Salter {
     ) -> Result<Vec<u8>> {
         let temp = temp.unwrap_or(false);
         let st = self.tier();
-        let tier = if temp { Tierage::min } else { tier.unwrap_or(st.as_str()) };
+        let tier = if temp {
+            Tierage::min
+        } else {
+            tier.unwrap_or(st.as_str())
+        };
         let path = path.unwrap_or("");
         let size = size.unwrap_or(32);
 
@@ -115,7 +121,14 @@ impl Salter {
         let size = matter::raw_size(code)?;
         let mut seed = self.stretch(Some(size as usize), Some(path), tier, Some(temp))?;
 
-        let signer = Signer::new(Some(transferable), Some(code), Some(&seed), None, None, None)?;
+        let signer = Signer::new(
+            Some(transferable),
+            Some(code),
+            Some(&seed),
+            None,
+            None,
+            None,
+        )?;
         seed.zeroize();
 
         Ok(signer)
@@ -185,12 +198,15 @@ impl Matter for Salter {
 
 #[cfg(test)]
 mod test {
-    use crate::{cesr::core::{
-        common::{versify, Ilkage, Serialage, Tierage, CURRENT_VERSION},
-        matter::{tables as matter, Matter},
-        salter::Salter,
-    }, dat};
     use crate::signing::signer::Signer;
+    use crate::{
+        cesr::core::{
+            common::{versify, Ilkage, Serialage, Tierage, CURRENT_VERSION},
+            matter::{tables as matter, Matter},
+            salter::Salter,
+        },
+        dat,
+    };
 
     #[test]
     fn convenience() {
@@ -215,27 +231,47 @@ mod test {
         assert_eq!(salter.raw(), raw);
         assert_eq!(salter.qb64().unwrap(), qb64);
 
-        let signer = salter.signer(None, None, Some("01"), None, Some(true)).unwrap();
+        let signer = salter
+            .signer(None, None, Some("01"), None, Some(true))
+            .unwrap();
         assert_eq!(signer.code(), matter::Codex::Ed25519_Seed);
-        assert_eq!(signer.raw().len() as u32, matter::raw_size(&signer.code()).unwrap());
+        assert_eq!(
+            signer.raw().len() as u32,
+            matter::raw_size(&signer.code()).unwrap()
+        );
         assert_eq!(signer.verfer().code(), matter::Codex::Ed25519);
         assert_eq!(
             signer.verfer().raw().len() as u32,
             matter::raw_size(&signer.verfer().code()).unwrap()
         );
-        assert_eq!(signer.qb64().unwrap(), "AMPsqBZxWdtYpBhrWnKYitwFa77s902Q-nX3sPTzqs0R");
-        assert_eq!(signer.verfer().qb64().unwrap(), "DFYFwZJOMNy3FknECL8tUaQZRBUyQ9xCv6F8ckG-UCrC");
+        assert_eq!(
+            signer.qb64().unwrap(),
+            "AMPsqBZxWdtYpBhrWnKYitwFa77s902Q-nX3sPTzqs0R"
+        );
+        assert_eq!(
+            signer.verfer().qb64().unwrap(),
+            "DFYFwZJOMNy3FknECL8tUaQZRBUyQ9xCv6F8ckG-UCrC"
+        );
 
         let signer = salter.signer(None, None, Some("01"), None, None).unwrap();
         assert_eq!(signer.code(), matter::Codex::Ed25519_Seed);
-        assert_eq!(signer.raw().len() as u32, matter::raw_size(&signer.code()).unwrap());
+        assert_eq!(
+            signer.raw().len() as u32,
+            matter::raw_size(&signer.code()).unwrap()
+        );
         assert_eq!(signer.verfer().code(), matter::Codex::Ed25519);
         assert_eq!(
             signer.verfer().raw().len() as u32,
             matter::raw_size(&signer.verfer().code()).unwrap()
         );
-        assert_eq!(signer.qb64().unwrap(), "AEkqQiNTexWB9fTLpgJp_lXW63tFlT-Y0_mgQww4o-dC");
-        assert_eq!(signer.verfer().qb64().unwrap(), "DPJGyH9H1M_SUSf18RzX8OqdyhxEyZJpKm5Em0PnpsWd");
+        assert_eq!(
+            signer.qb64().unwrap(),
+            "AEkqQiNTexWB9fTLpgJp_lXW63tFlT-Y0_mgQww4o-dC"
+        );
+        assert_eq!(
+            signer.verfer().qb64().unwrap(),
+            "DPJGyH9H1M_SUSf18RzX8OqdyhxEyZJpKm5Em0PnpsWd"
+        );
 
         let salter = Salter::new(None, None, None, None, Some(qb64), None).unwrap();
         assert_eq!(salter.raw(), raw);
@@ -249,8 +285,8 @@ mod test {
         let _vault = Vault::default().unwrap();
     }
 
-    use crate::cesr::{
-        core::{
+    use crate::{
+        cesr::core::{
             cigar::Cigar,
             common::Version,
             counter::{tables as counter, Counter},
@@ -283,7 +319,12 @@ mod test {
         pub fn new(i: &str, s: &str, d: &str, last: Option<bool>) -> Self {
             let last = last.unwrap_or(false);
 
-            Self { i: i.to_string(), s: s.to_string(), d: d.to_string(), last }
+            Self {
+                i: i.to_string(),
+                s: s.to_string(),
+                d: d.to_string(),
+                last,
+            }
         }
 
         pub fn i(&self) -> String {
@@ -312,8 +353,10 @@ mod test {
             let witness =
                 wsalter.signers(Some(4), None, Some("wit-0"), None, Some(false), None, None)?;
 
-            let ckeys: Vec<String> =
-                current.iter().map(|signer| signer.verfer().qb64().unwrap()).collect();
+            let ckeys: Vec<String> = current
+                .iter()
+                .map(|signer| signer.verfer().qb64().unwrap())
+                .collect();
             let ndigs: Vec<String> = next
                 .iter()
                 .map(|signer| {
@@ -323,8 +366,10 @@ mod test {
                         .unwrap()
                 })
                 .collect();
-            let wkeys: Vec<String> =
-                witness.iter().map(|signer| signer.verfer().qb64().unwrap()).collect();
+            let wkeys: Vec<String> = witness
+                .iter()
+                .map(|signer| signer.verfer().qb64().unwrap())
+                .collect();
 
             let ckeys: Vec<&str> = ckeys.iter().map(|key| key.as_ref()).collect();
             let ndigs: Vec<&str> = ndigs.iter().map(|dig| dig.as_ref()).collect();

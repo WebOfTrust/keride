@@ -14,3 +14,5 @@ pub mod prefexing;
 #[cfg(feature = "pathing")]
 pub mod pathing;
 
+pub mod data;
+pub mod error;

@@ -78,7 +78,7 @@ pub(crate) use err;
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::error::{Error, Result};
+    use crate::error::{Error, Result};
 
     fn explode() -> Result<()> {
         err!(Error::Prepad())

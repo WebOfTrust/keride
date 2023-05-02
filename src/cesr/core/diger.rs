@@ -1,6 +1,6 @@
 use crate::cesr::core::matter::{tables as matter, Matter};
 use crate::cesr::crypto::hash;
-use crate::cesr::error::{err, Error, Result};
+use crate::error::{err, Error, Result};
 
 /// ```rust
 /// use keride::cesr::{matter, Matter, Diger};

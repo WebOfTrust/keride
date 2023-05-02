@@ -1,5 +1,5 @@
 use crate::cesr::core::matter::{tables as matter, Matter};
-use crate::cesr::error::{err, Error, Result};
+use crate::error::{err, Error, Result};
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Seqner {
@@ -10,7 +10,11 @@ pub struct Seqner {
 
 impl Default for Seqner {
     fn default() -> Self {
-        Seqner { raw: vec![], code: matter::Codex::Salt_128.to_string(), size: 0 }
+        Seqner {
+            raw: vec![],
+            code: matter::Codex::Salt_128.to_string(),
+            size: 0,
+        }
     }
 }
 
@@ -209,7 +213,10 @@ mod test {
     ) {
         assert_eq!(seqner.raw, qb2[2..]);
         assert_eq!(seqner.code, matter::Codex::Salt_128);
-        assert_eq!(seqner.sn().unwrap(), 340282366920938463463374607431768211455);
+        assert_eq!(
+            seqner.sn().unwrap(),
+            340282366920938463463374607431768211455
+        );
         assert_eq!(seqner.snh().unwrap(), "ffffffffffffffffffffffffffffffff");
         assert_eq!(seqner.qb64().unwrap(), qb64);
         assert_eq!(seqner.qb64b().unwrap(), qb64.as_bytes());
