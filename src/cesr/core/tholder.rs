@@ -22,13 +22,7 @@ pub struct Tholder {
 
 impl Default for Tholder {
     fn default() -> Self {
-        Tholder {
-            thold: dat!(1),
-            weighted: false,
-            size: 1,
-            number: None,
-            bexter: None,
-        }
+        Tholder { thold: dat!(1), weighted: false, size: 1, number: None, bexter: None }
     }
 }
 
@@ -56,9 +50,7 @@ fn values_to_rationals(value: &Value) -> Result<Vec<Vec<Rational32>>> {
                 let numer = parts[0].parse::<i32>()?;
                 let denom = parts[1].parse::<i32>()?;
                 if numer < 0 || denom < 0 {
-                    return err!(Error::Value(
-                        "negative weights do not make sense".to_string()
-                    ));
+                    return err!(Error::Value("negative weights do not make sense".to_string()));
                 }
                 if numer > denom {
                     return err!(Error::Value(format!("weight {numer}/{denom} > 1")));
@@ -120,9 +112,7 @@ impl Tholder {
         }
 
         if tholder == Self::default() {
-            return err!(Error::EmptyMaterial(
-                "missing threshold expression".to_string()
-            ));
+            return err!(Error::EmptyMaterial("missing threshold expression".to_string()));
         }
 
         Ok(tholder)
@@ -329,10 +319,7 @@ impl Tholder {
         let array = sith.to_vec()?;
 
         if array.is_empty() {
-            return err!(Error::Value(format!(
-                "empty weight list = {s}",
-                s = sith.to_json()?
-            )));
+            return err!(Error::Value(format!("empty weight list = {s}", s = sith.to_json()?)));
         }
 
         if !array.iter().all(|clause| clause.to_vec().is_ok()) {
@@ -367,15 +354,7 @@ impl Tholder {
         self.size = u32::try_from(thold)?;
         self.weighted = false;
         self.thold = dat!(self.size);
-        self.number = Some(Number::new(
-            Some(thold as u128),
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-        )?);
+        self.number = Some(Number::new(Some(thold as u128), None, None, None, None, None, None)?);
         self.bexter = None;
 
         Ok(())
@@ -442,9 +421,7 @@ mod test {
         assert_eq!(tholder.to_json().unwrap(), "\"b\"");
         assert_eq!(tholder.num().unwrap().unwrap(), 11);
         assert!(!tholder.satisfy(&[0, 1, 2]).unwrap());
-        assert!(tholder
-            .satisfy(&[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-            .unwrap());
+        assert!(tholder.satisfy(&[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]).unwrap());
     }
 
     #[test]
@@ -453,17 +430,11 @@ mod test {
 
         assert!(Tholder::new(None, None, Some(&dat!("[[\"1/2\",\"4/4\"]]"))).is_ok());
         assert!(Tholder::new(None, None, Some(&dat!("[[\"1/2\",\"-3/4\"]]"))).is_err());
-        assert!(!Tholder::default()
-            .satisfy(&[0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
-            .unwrap());
+        assert!(!Tholder::default().satisfy(&[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]).unwrap());
         assert!(Tholder::new(None, None, Some(&dat!("[[\"1/2\",\"3/4\"]]"))).is_ok());
         assert!(Tholder::new(None, Some(&[]), Some(&dat!("[[\"1/2\",\"3/4\"]]"))).is_ok());
-        assert!(Tholder::new(
-            None,
-            Some(b"DKxy2sgzfplyr-tgwIxS19f2OchFHtLwPWD3v4oYimBx"),
-            None
-        )
-        .is_err());
+        assert!(Tholder::new(None, Some(b"DKxy2sgzfplyr-tgwIxS19f2OchFHtLwPWD3v4oYimBx"), None)
+            .is_err());
 
         let tholder = Tholder::new(None, None, Some(&dat!("f"))).unwrap();
         assert!(!tholder.weighted());
@@ -474,9 +445,7 @@ mod test {
         assert_eq!(tholder.to_json().unwrap(), "\"f\"");
         assert_eq!(tholder.num().unwrap().unwrap(), 15);
         assert!(!tholder.satisfy(&[0, 1, 2]).unwrap());
-        assert!(tholder
-            .satisfy(&[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14])
-            .unwrap());
+        assert!(tholder.satisfy(&[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]).unwrap());
 
         let tholder = Tholder::new(None, None, Some(&dat!(2))).unwrap();
         assert!(!tholder.weighted());
@@ -535,14 +504,8 @@ mod test {
         assert_eq!(tholder.size(), 5);
         assert_eq!(tholder.thold(), dat!([["1/2", "1/2", "1/4", "1/4", "1/4"]]));
         assert_eq!(tholder.limen().unwrap(), b"4AAFA1s2c1s2c1s4c1s4c1s4");
-        assert_eq!(
-            tholder.sith().unwrap(),
-            dat!(["1/2", "1/2", "1/4", "1/4", "1/4"])
-        );
-        assert_eq!(
-            tholder.to_json().unwrap(),
-            "[\"1/2\",\"1/2\",\"1/4\",\"1/4\",\"1/4\"]"
-        ); // this isn't identical to KERIpy but still conforms to JSON
+        assert_eq!(tholder.sith().unwrap(), dat!(["1/2", "1/2", "1/4", "1/4", "1/4"]));
+        assert_eq!(tholder.to_json().unwrap(), "[\"1/2\",\"1/2\",\"1/4\",\"1/4\",\"1/4\"]"); // this isn't identical to KERIpy but still conforms to JSON
         assert_eq!(tholder.num().unwrap(), None);
         assert!(tholder.satisfy(&[0, 2, 4]).unwrap());
         assert!(tholder.satisfy(&[0, 1]).unwrap());
@@ -554,27 +517,15 @@ mod test {
         assert!(!tholder.satisfy(&[2, 3, 4]).unwrap());
         assert!(!tholder.satisfy(&[0, 0, 2]).unwrap());
 
-        let tholder = Tholder::new(
-            None,
-            None,
-            Some(&dat!(["1/2", "1/2", "1/4", "1/4", "1/4", "0"])),
-        )
-        .unwrap();
+        let tholder =
+            Tholder::new(None, None, Some(&dat!(["1/2", "1/2", "1/4", "1/4", "1/4", "0"])))
+                .unwrap();
         assert!(tholder.weighted());
         assert_eq!(tholder.size(), 6);
-        assert_eq!(
-            tholder.thold(),
-            dat!([["1/2", "1/2", "1/4", "1/4", "1/4", "0"]])
-        );
+        assert_eq!(tholder.thold(), dat!([["1/2", "1/2", "1/4", "1/4", "1/4", "0"]]));
         assert_eq!(tholder.limen().unwrap(), b"6AAGAAA1s2c1s2c1s4c1s4c1s4c0");
-        assert_eq!(
-            tholder.sith().unwrap(),
-            dat!(["1/2", "1/2", "1/4", "1/4", "1/4", "0"])
-        );
-        assert_eq!(
-            tholder.to_json().unwrap(),
-            "[\"1/2\",\"1/2\",\"1/4\",\"1/4\",\"1/4\",\"0\"]"
-        );
+        assert_eq!(tholder.sith().unwrap(), dat!(["1/2", "1/2", "1/4", "1/4", "1/4", "0"]));
+        assert_eq!(tholder.to_json().unwrap(), "[\"1/2\",\"1/2\",\"1/4\",\"1/4\",\"1/4\",\"0\"]");
         assert_eq!(tholder.num().unwrap(), None);
         assert!(tholder.satisfy(&[0, 2, 4]).unwrap());
         assert!(tholder.satisfy(&[0, 1]).unwrap());
@@ -585,24 +536,14 @@ mod test {
         assert!(!tholder.satisfy(&[0, 2, 5]).unwrap());
         assert!(!tholder.satisfy(&[2, 3, 4, 5]).unwrap());
 
-        let tholder = Tholder::new(
-            None,
-            None,
-            Some(&dat!([["1/2", "1/2", "1/4", "1/4", "1/4"]])),
-        )
-        .unwrap();
+        let tholder =
+            Tholder::new(None, None, Some(&dat!([["1/2", "1/2", "1/4", "1/4", "1/4"]]))).unwrap();
         assert!(tholder.weighted());
         assert_eq!(tholder.size(), 5);
         assert_eq!(tholder.thold(), dat!([["1/2", "1/2", "1/4", "1/4", "1/4"]]));
         assert_eq!(tholder.limen().unwrap(), b"4AAFA1s2c1s2c1s4c1s4c1s4");
-        assert_eq!(
-            tholder.sith().unwrap(),
-            dat!(["1/2", "1/2", "1/4", "1/4", "1/4"])
-        );
-        assert_eq!(
-            tholder.to_json().unwrap(),
-            "[\"1/2\",\"1/2\",\"1/4\",\"1/4\",\"1/4\"]"
-        ); // this isn't identical to KERIpy but still conforms to JSON
+        assert_eq!(tholder.sith().unwrap(), dat!(["1/2", "1/2", "1/4", "1/4", "1/4"]));
+        assert_eq!(tholder.to_json().unwrap(), "[\"1/2\",\"1/2\",\"1/4\",\"1/4\",\"1/4\"]"); // this isn't identical to KERIpy but still conforms to JSON
         assert_eq!(tholder.num().unwrap(), None);
         assert!(tholder.satisfy(&[0, 2, 4]).unwrap());
         assert!(tholder.satisfy(&[0, 1]).unwrap());
@@ -622,10 +563,7 @@ mod test {
         .unwrap();
         assert!(tholder.weighted());
         assert_eq!(tholder.size(), 7);
-        assert_eq!(
-            tholder.thold(),
-            dat!([["1/2", "1/2", "1/4", "1/4", "1/4"], ["1", "1"]])
-        );
+        assert_eq!(tholder.thold(), dat!([["1/2", "1/2", "1/4", "1/4", "1/4"], ["1", "1"]]));
         assert_eq!(tholder.limen().unwrap(), b"4AAGA1s2c1s2c1s4c1s4c1s4a1c1");
         assert_eq!(
             tholder.sith().unwrap(),
@@ -646,10 +584,7 @@ mod test {
         let tholder = Tholder::new(None, Some(b"4AAGA1s2c1s2c1s4c1s4c1s4a1c1"), None).unwrap();
         assert!(tholder.weighted());
         assert_eq!(tholder.size(), 7);
-        assert_eq!(
-            tholder.thold(),
-            dat!([["1/2", "1/2", "1/4", "1/4", "1/4"], ["1", "1"]])
-        );
+        assert_eq!(tholder.thold(), dat!([["1/2", "1/2", "1/4", "1/4", "1/4"], ["1", "1"]]));
         assert_eq!(tholder.limen().unwrap(), b"4AAGA1s2c1s2c1s4c1s4c1s4a1c1");
         assert_eq!(
             tholder.sith().unwrap(),
@@ -675,10 +610,7 @@ mod test {
         .unwrap();
         assert!(tholder.weighted());
         assert_eq!(tholder.size(), 7);
-        assert_eq!(
-            tholder.thold(),
-            dat!([["1/2", "1/2", "1/4", "1/4", "1/4"], ["1", "1"]])
-        );
+        assert_eq!(tholder.thold(), dat!([["1/2", "1/2", "1/4", "1/4", "1/4"], ["1", "1"]]));
         assert_eq!(tholder.limen().unwrap(), b"4AAGA1s2c1s2c1s4c1s4c1s4a1c1");
         assert_eq!(
             tholder.sith().unwrap(),

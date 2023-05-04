@@ -13,11 +13,7 @@ pub struct Saider {
 
 impl Default for Saider {
     fn default() -> Self {
-        Saider {
-            raw: vec![],
-            code: matter::Codex::Blake3_256.to_string(),
-            size: 0,
-        }
+        Saider { raw: vec![], code: matter::Codex::Blake3_256.to_string(), size: 0 }
     }
 }
 
@@ -48,11 +44,7 @@ fn serialize(sad: &Value, kind: Option<&str>) -> Result<Vec<u8>> {
     } else {
         Serialage::JSON.to_string()
     };
-    let kind = if let Some(kind) = kind {
-        Some(kind)
-    } else {
-        Some(knd.as_str())
-    };
+    let kind = if let Some(kind) = kind { Some(kind) } else { Some(knd.as_str()) };
     dumps(sad, kind)
 }
 
@@ -89,11 +81,8 @@ fn derive(
     }
     let ser = dat!(&map);
 
-    let cpa = if let Some(kind) = kind {
-        serialize(&ser, Some(&kind))?
-    } else {
-        serialize(&ser, None)?
-    };
+    let cpa =
+        if let Some(kind) = kind { serialize(&ser, Some(&kind))? } else { serialize(&ser, None)? };
     let digest = hash::digest(code, &cpa)?;
 
     Ok((digest, sad))
@@ -150,11 +139,7 @@ impl Saider {
 
                 validate_code(&code)?;
 
-                let sad = if let Some(sad) = sad {
-                    sad.clone()
-                } else {
-                    dat!({})
-                };
+                let sad = if let Some(sad) = sad { sad.clone() } else { dat!({}) };
                 let (raw, _) = derive(&sad, Some(&code), kind, Some(label), ignore)?;
 
                 (code, raw)
@@ -190,23 +175,12 @@ impl Saider {
         let label = label.unwrap_or(Ids::d);
 
         if !sad.to_map()?.contains_key(label) {
-            return err!(Error::Validation(format!(
-                "missing id field labelled={label}"
-            )));
+            return err!(Error::Validation(format!("missing id field labelled={label}")));
         }
 
         let (_, sad) = derive(sad, Some(code), kind, Some(label), ignore)?;
-        let saider = Self::new(
-            Some(&sad),
-            Some(label),
-            kind,
-            ignore,
-            Some(code),
-            None,
-            None,
-            None,
-            None,
-        )?;
+        let saider =
+            Self::new(Some(&sad), Some(label), kind, ignore, Some(code), None, None, None, None)?;
         let mut sad = sad;
         sad[label] = dat!(&saider.qb64()?);
 
@@ -372,14 +346,8 @@ mod test {
     }
 
     #[rstest]
-    #[case(
-        matter::Codex::Blake3_256,
-        "EBG9LuUbFzV4OV5cGS9IeQWzy9SuyVFyVrpRc4l1xzPA"
-    )]
-    #[case(
-        matter::Codex::Blake2b_256,
-        "FG1_1lgNJ69QPnJK-pD5s8cinFFYhnGN8nuyz8Mdrezg"
-    )]
+    #[case(matter::Codex::Blake3_256, "EBG9LuUbFzV4OV5cGS9IeQWzy9SuyVFyVrpRc4l1xzPA")]
+    #[case(matter::Codex::Blake2b_256, "FG1_1lgNJ69QPnJK-pD5s8cinFFYhnGN8nuyz8Mdrezg")]
     fn new_with_qb64(#[case] code: &str, #[case] said: &str) {
         // Test with valid said qb64
         let saider =
@@ -389,12 +357,7 @@ mod test {
     }
 
     #[rstest]
-    #[case(
-        "EMRvS7lGxc1eDleXBkvSHkFs8vUrslRcla6UXOJdcczw",
-        None,
-        None,
-        Some(Ids::dollar)
-    )]
+    #[case("EMRvS7lGxc1eDleXBkvSHkFs8vUrslRcla6UXOJdcczw", None, None, Some(Ids::dollar))]
     #[case(
         "EMRvS7lGxc1eDleXBkvSHkFs8vUrslRcla6UXOJdcczw",
         Some(matter::Codex::Blake3_256),
@@ -450,15 +413,9 @@ mod test {
             }
         });
 
-        assert!(saider
-            .verify(&sad2, Some(true), None, None, label, None)
-            .unwrap());
-        assert!(saider
-            .verify(&sad1, Some(false), None, None, label, None)
-            .unwrap());
-        assert!(!saider
-            .verify(&sad1, Some(true), None, None, label, None)
-            .unwrap());
+        assert!(saider.verify(&sad2, Some(true), None, None, label, None).unwrap());
+        assert!(saider.verify(&sad1, Some(false), None, None, label, None).unwrap());
+        assert!(!saider.verify(&sad1, Some(true), None, None, label, None).unwrap());
     }
 
     #[test]
@@ -488,45 +445,23 @@ mod test {
                 "role":"Founder",
             },
         });
-        let saider = Saider::new(
-            Some(&sad6),
-            Some(label),
-            None,
-            None,
-            Some(code),
-            None,
-            None,
-            None,
-            None,
-        )
-        .unwrap();
+        let saider =
+            Saider::new(Some(&sad6), Some(label), None, None, Some(code), None, None, None, None)
+                .unwrap();
         assert_eq!(saider.code(), code);
-        assert_eq!(
-            saider.qb64().unwrap(),
-            "ELzewBpZHSENRP-sL_G_2Ji4YDdNkns9AzFzufleJqdw"
-        );
-        assert!(saider
-            .verify(&sad6, Some(false), Some(false), None, None, None)
-            .unwrap());
-        assert!(!saider
-            .verify(&sad6, Some(false), None, None, None, None)
-            .unwrap());
-        assert!(!saider
-            .verify(&sad6, Some(true), Some(false), None, None, None)
-            .unwrap());
+        assert_eq!(saider.qb64().unwrap(), "ELzewBpZHSENRP-sL_G_2Ji4YDdNkns9AzFzufleJqdw");
+        assert!(saider.verify(&sad6, Some(false), Some(false), None, None, None).unwrap());
+        assert!(!saider.verify(&sad6, Some(false), None, None, None, None).unwrap());
+        assert!(!saider.verify(&sad6, Some(true), Some(false), None, None, None).unwrap());
 
         let mut sad7 = sad6.clone();
         sad7[label] = dat!(&saider.qb64().unwrap());
-        assert!(saider
-            .verify(&sad7, Some(true), Some(false), None, None, None)
-            .unwrap());
+        assert!(saider.verify(&sad7, Some(true), Some(false), None, None, None).unwrap());
 
         let mut sad8 = sad7.clone();
         let (_, dsad) = derive(&sad6, Some(code), None, Some(label), None).unwrap();
         sad8["v"] = dat!(&dsad["v"].to_string().unwrap());
-        assert!(saider
-            .verify(&sad8, Some(true), None, None, None, None)
-            .unwrap());
+        assert!(saider.verify(&sad8, Some(true), None, None, None, None).unwrap());
 
         // let said8 = saider.qb64().unwrap();
 
@@ -559,27 +494,13 @@ mod test {
         assert!(!sad10["read"].to_bool().unwrap());
 
         assert!(saider1
-            .verify(
-                &sad10,
-                Some(true),
-                None,
-                None,
-                Some(Ids::d),
-                Some(&["read"])
-            )
+            .verify(&sad10, Some(true), None, None, Some(Ids::d), Some(&["read"]))
             .unwrap());
 
         // Change the 'read' field that is ignored and make sure it still verifies
         sad10["read"] = dat!(true);
         assert!(saider1
-            .verify(
-                &sad10,
-                Some(true),
-                None,
-                None,
-                Some(Ids::d),
-                Some(&["read"])
-            )
+            .verify(&sad10, Some(true), None, None, Some(Ids::d), Some(&["read"]))
             .unwrap());
 
         let saider2 = Saider::new(
@@ -658,14 +579,7 @@ mod test {
         v.append(&mut saider4.raw[1..].to_vec());
         saider4.raw = v;
         assert!(!saider4
-            .verify(
-                &dat!({"d":&saider.qb64().unwrap()}),
-                None,
-                None,
-                None,
-                None,
-                None
-            )
+            .verify(&dat!({"d":&saider.qb64().unwrap()}), None, None, None, None, None)
             .unwrap());
     }
 
@@ -699,13 +613,9 @@ mod test {
         )
         .is_err());
         assert!(Saider::new(None, None, None, None, None, None, None, None, None).is_err());
-        assert!(!Saider {
-            code: "CESR".to_string(),
-            raw: vec![],
-            size: 0
-        }
-        .verify(&dat!({}), None, None, None, None, None)
-        .unwrap());
+        assert!(!Saider { code: "CESR".to_string(), raw: vec![], size: 0 }
+            .verify(&dat!({}), None, None, None, None, None)
+            .unwrap());
         assert!(Saider::saidify(&dat!({}), None, None, None, None).is_err());
     }
 }

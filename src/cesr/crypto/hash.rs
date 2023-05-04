@@ -51,9 +51,7 @@ pub(crate) fn digest(code: &str, ser: &[u8]) -> Result<Vec<u8>> {
             hasher.finalize().to_vec()
         }
         _ => {
-            return err!(Error::UnexpectedCode(format!(
-                "unexpected digest code: code = '{code}'",
-            )))
+            return err!(Error::UnexpectedCode(format!("unexpected digest code: code = '{code}'",)))
         }
     };
 

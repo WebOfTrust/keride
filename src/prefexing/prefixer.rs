@@ -21,11 +21,7 @@ pub struct Prefixer {
 
 impl Default for Prefixer {
     fn default() -> Self {
-        Prefixer {
-            code: matter::Codex::Blake3_256.to_string(),
-            raw: vec![],
-            size: 0,
-        }
+        Prefixer { code: matter::Codex::Blake3_256.to_string(), raw: vec![], size: 0 }
     }
 }
 
@@ -64,9 +60,7 @@ fn derive(ked: &Value, code: &str) -> Result<(Vec<u8>, String)> {
     let label = Ids::t;
     let ilk = ked[label].to_string()?;
     if !ILKS.contains(&ilk.as_str()) {
-        return err!(Error::Value(format!(
-            "non-incepting ilk {ilk} found for prefix derivation"
-        )));
+        return err!(Error::Value(format!("non-incepting ilk {ilk} found for prefix derivation")));
     }
 
     match code {
@@ -119,23 +113,17 @@ fn derive_nontransferable(ked: &Value, code: &str) -> Result<(Vec<u8>, String)> 
 
     let label = Ids::n;
     if map.contains_key(label) && !ked[label].to_string()?.is_empty() {
-        return err!(Error::Derivation(
-            "non-empty nxt for transferable derivation".to_string()
-        ));
+        return err!(Error::Derivation("non-empty nxt for transferable derivation".to_string()));
     }
 
     let label = Ids::b;
     if map.contains_key(label) && !ked[label].to_string()?.is_empty() {
-        return err!(Error::Derivation(
-            "non-empty 'b' for transferable derivation".to_string()
-        ));
+        return err!(Error::Derivation("non-empty 'b' for transferable derivation".to_string()));
     }
 
     let label = Ids::a;
     if map.contains_key(label) && !ked[label].to_string()?.is_empty() {
-        return err!(Error::Derivation(
-            "non-empty 'a' for transferable derivation".to_string()
-        ));
+        return err!(Error::Derivation("non-empty 'a' for transferable derivation".to_string()));
     }
 
     Ok((verfer.raw(), verfer.code()))
@@ -686,30 +674,17 @@ mod test {
         let verkey = b"\xacr\xda\xc83~\x99r\xaf\xeb`\xc0\x8cR\xd7\xd7\xf69\xc8E\x1e\xd2\xf0=`\xf7\xbf\x8a\x18\x8a`q";
 
         // next keys present, non-transferable
-        let verfer = Verfer::new(
-            Some(matter::Codex::Ed25519N),
-            Some(verkey),
-            None,
-            None,
-            None,
-        )
-        .unwrap();
+        let verfer =
+            Verfer::new(Some(matter::Codex::Ed25519N), Some(verkey), None, None, None).unwrap();
         let mut ked = dat!({
             "k": [&verfer.qb64().unwrap()],
             "n": "",
             "t": "icp",
             "i": pre_n,
         });
-        let prefixer = Prefixer::new(
-            Some(&ked),
-            None,
-            Some(matter::Codex::Ed25519N),
-            None,
-            None,
-            None,
-            None,
-        )
-        .unwrap();
+        let prefixer =
+            Prefixer::new(Some(&ked), None, Some(matter::Codex::Ed25519N), None, None, None, None)
+                .unwrap();
 
         ked["n"] = dat!([&verfer.qb64().unwrap()]);
 
@@ -980,10 +955,7 @@ mod test {
         let nxtfer =
             Verfer::new(Some(matter::Codex::Ed25519), Some(nxtkey), None, None, None).unwrap();
 
-        assert_eq!(
-            nxtfer.qb64().unwrap(),
-            "DKZfiTRK8jVUwYMjBphMpu8as2jqQTp4J9oEiLLEX_YA"
-        );
+        assert_eq!(nxtfer.qb64().unwrap(), "DKZfiTRK8jVUwYMjBphMpu8as2jqQTp4J9oEiLLEX_YA");
 
         let vs = versify(None, Some(CURRENT_VERSION), Some(Serialage::JSON), Some(0)).unwrap();
         let sn = "0"; // hex string
@@ -1029,20 +1001,15 @@ mod test {
             None,
         )
         .unwrap();
-        assert_eq!(
-            prefixer.qb64().unwrap(),
-            "ELEjyRTtmfyp4VpTBTkv_b6KONMS1V8-EW-aGJ5P_QMo"
-        );
+        assert_eq!(prefixer.qb64().unwrap(), "ELEjyRTtmfyp4VpTBTkv_b6KONMS1V8-EW-aGJ5P_QMo");
         assert!(prefixer.verify(&ked, None).unwrap());
         assert!(!prefixer.verify(&ked, Some(true)).unwrap());
 
         let n_digs =
-            dat!([
-                &Diger::new(Some(&nxtfer.qb64b().unwrap()), None, None, None, None, None)
-                    .unwrap()
-                    .qb64()
-                    .unwrap()
-            ]);
+            dat!([&Diger::new(Some(&nxtfer.qb64b().unwrap()), None, None, None, None, None)
+                .unwrap()
+                .qb64()
+                .unwrap()]);
         let ked = dat!({
             "v": &vs,
             "i": "",
@@ -1066,10 +1033,7 @@ mod test {
             None,
         )
         .unwrap();
-        assert_eq!(
-            prefixer.qb64().unwrap(),
-            "EHZUmVPq9cXFvGwWP4ohwA27XlsWHBxxu4xFiXp8UOol"
-        );
+        assert_eq!(prefixer.qb64().unwrap(), "EHZUmVPq9cXFvGwWP4ohwA27XlsWHBxxu4xFiXp8UOol");
         assert!(prefixer.verify(&ked, None).unwrap());
         assert!(!prefixer.verify(&ked, Some(true)).unwrap());
 
@@ -1104,17 +1068,11 @@ mod test {
             &signers[2].verfer().qb64().unwrap(),
         ]);
         let sith = dat!([["1/2", "1/2", "1"]]);
-        let n_dig = Diger::new(
-            Some(&signers[3].verfer().qb64b().unwrap()),
-            None,
-            None,
-            None,
-            None,
-            None,
-        )
-        .unwrap()
-        .qb64()
-        .unwrap();
+        let n_dig =
+            Diger::new(Some(&signers[3].verfer().qb64b().unwrap()), None, None, None, None, None)
+                .unwrap()
+                .qb64()
+                .unwrap();
         let n_digs = dat!([&n_dig]);
         let ked = dat!({
             "v": &vs,
@@ -1139,10 +1097,7 @@ mod test {
             None,
         )
         .unwrap();
-        assert_eq!(
-            prefixer.qb64().unwrap(),
-            "EBfPkd-A2CQfJmfpmtc1V-yuleSeCcyWBIrTAygUgQ_T"
-        );
+        assert_eq!(prefixer.qb64().unwrap(), "EBfPkd-A2CQfJmfpmtc1V-yuleSeCcyWBIrTAygUgQ_T");
         assert!(prefixer.verify(&ked, None).unwrap());
         assert!(!prefixer.verify(&ked, Some(true)).unwrap());
 
@@ -1169,10 +1124,7 @@ mod test {
             None,
         )
         .unwrap();
-        assert_eq!(
-            prefixer2.qb64().unwrap(),
-            "EB0_D51cTh_q6uOQ-byFiv5oNXZ-cxdqCqBAa4JmBLtb"
-        );
+        assert_eq!(prefixer2.qb64().unwrap(), "EB0_D51cTh_q6uOQ-byFiv5oNXZ-cxdqCqBAa4JmBLtb");
         assert!(prefixer2.verify(&ked, None).unwrap());
         assert!(!prefixer.verify(&ked, Some(true)).unwrap());
 
@@ -1208,10 +1160,7 @@ mod test {
             None,
         )
         .unwrap();
-        assert_eq!(
-            prefixer.qb64().unwrap(),
-            "EBabiu_JCkE0GbiglDXNB5C4NQq-hiGgxhHKXBxkiojg"
-        );
+        assert_eq!(prefixer.qb64().unwrap(), "EBabiu_JCkE0GbiglDXNB5C4NQq-hiGgxhHKXBxkiojg");
         assert!(prefixer.verify(&ked, None).unwrap());
         assert!(!prefixer.verify(&ked, Some(true)).unwrap());
 
@@ -1236,10 +1185,7 @@ mod test {
             None,
         )
         .unwrap();
-        assert_eq!(
-            prefixer.qb64().unwrap(),
-            "EBabiu_JCkE0GbiglDXNB5C4NQq-hiGgxhHKXBxkiojg"
-        );
+        assert_eq!(prefixer.qb64().unwrap(), "EBabiu_JCkE0GbiglDXNB5C4NQq-hiGgxhHKXBxkiojg");
         assert!(prefixer.verify(&ked, None).unwrap());
         assert!(!prefixer.verify(&ked, Some(true)).unwrap());
     }

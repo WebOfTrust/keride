@@ -150,22 +150,11 @@ mod test {
         let code = indexer::Codex::Ed25519;
         let raw = b"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ[]";
 
-        let siger = Siger::new(
-            Some(&verfer),
-            None,
-            None,
-            Some(code),
-            Some(raw),
-            None,
-            None,
-            None,
-        )
-        .unwrap();
+        let siger =
+            Siger::new(Some(&verfer), None, None, Some(code), Some(raw), None, None, None).unwrap();
 
-        assert!(
-            Siger::new_with_raw(&siger.raw(), Some(&verfer), None, None, Some(&siger.code()))
-                .is_ok()
-        );
+        assert!(Siger::new_with_raw(&siger.raw(), Some(&verfer), None, None, Some(&siger.code()))
+            .is_ok());
         assert!(Siger::new_with_qb64b(&siger.qb64b().unwrap(), Some(&verfer)).is_ok());
         assert!(Siger::new_with_qb64(&siger.qb64().unwrap(), Some(&verfer)).is_ok());
         assert!(Siger::new_with_qb2(&siger.qb2().unwrap(), Some(&verfer)).is_ok());
@@ -179,17 +168,9 @@ mod test {
         let code = indexer::Codex::Ed25519;
         let raw = b"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ[]";
 
-        assert!(Siger::new(
-            Some(&verfer),
-            None,
-            None,
-            Some(code),
-            Some(raw),
-            None,
-            None,
-            None
-        )
-        .is_ok());
+        assert!(
+            Siger::new(Some(&verfer), None, None, Some(code), Some(raw), None, None, None).is_ok()
+        );
         assert!(Siger::new(None, None, None, Some(code), Some(raw), None, None, None).is_ok());
     }
 
@@ -224,17 +205,8 @@ mod test {
         siger.set_verfer(&verfer);
         assert_eq!(siger.verfer(), verfer);
 
-        let siger = Siger::new(
-            Some(&verfer),
-            None,
-            None,
-            None,
-            None,
-            None,
-            Some(qsig64),
-            None,
-        )
-        .unwrap();
+        let siger =
+            Siger::new(Some(&verfer), None, None, None, None, None, Some(qsig64), None).unwrap();
         assert_eq!(siger.verfer(), verfer);
 
         // we don't support ed448 yet
@@ -276,17 +248,8 @@ mod test {
             None
         )
         .is_ok());
-        assert!(Siger::new(
-            None,
-            None,
-            None,
-            Some(siger_code),
-            Some(&siger_raw),
-            None,
-            None,
-            None
-        )
-        .is_ok());
+        assert!(Siger::new(None, None, None, Some(siger_code), Some(&siger_raw), None, None, None)
+            .is_ok());
     }
 
     #[test]
@@ -299,17 +262,9 @@ mod test {
         let qsig64 = "AACdI8OSQkMJ9r-xigjEByEjIua7LHH3AOJ22PQKqljMhuhcgh9nGRcKnsz5KvKd7K_H9-1298F4Id1DxvIoEmCQ";
         let qsig64b = qsig64.as_bytes();
 
-        assert!(Siger::new(
-            Some(&verfer),
-            None,
-            None,
-            None,
-            None,
-            Some(qsig64b),
-            None,
-            None
-        )
-        .is_ok());
+        assert!(
+            Siger::new(Some(&verfer), None, None, None, None, Some(qsig64b), None, None).is_ok()
+        );
         assert!(Siger::new(None, None, None, None, None, Some(qsig64b), None, None).is_ok());
     }
 
@@ -322,17 +277,7 @@ mod test {
 
         let qsig2 = b64_engine::URL_SAFE.decode("AACdI8OSQkMJ9r-xigjEByEjIua7LHH3AOJ22PQKqljMhuhcgh9nGRcKnsz5KvKd7K_H9-1298F4Id1DxvIoEmCQ").unwrap();
 
-        assert!(Siger::new(
-            Some(&verfer),
-            None,
-            None,
-            None,
-            None,
-            None,
-            None,
-            Some(&qsig2)
-        )
-        .is_ok());
+        assert!(Siger::new(Some(&verfer), None, None, None, None, None, None, Some(&qsig2)).is_ok());
         assert!(Siger::new(None, None, None, None, None, None, None, Some(&qsig2)).is_ok());
     }
 

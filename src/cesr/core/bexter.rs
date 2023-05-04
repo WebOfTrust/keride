@@ -37,11 +37,7 @@ pub struct Bexter {
 
 impl Default for Bexter {
     fn default() -> Self {
-        Bexter {
-            code: matter::Codex::StrB64_L0.to_string(),
-            raw: vec![],
-            size: 0,
-        }
+        Bexter { code: matter::Codex::StrB64_L0.to_string(), raw: vec![], size: 0 }
     }
 }
 
@@ -59,14 +55,8 @@ pub mod tables {
         const StrB64_Big_L2: &str = matter::Codex::StrB64_Big_L2;
 
         pub fn has_code(code: &str) -> bool {
-            const CODES: &[&str] = &[
-                StrB64_L0,
-                StrB64_L1,
-                StrB64_L2,
-                StrB64_Big_L0,
-                StrB64_Big_L1,
-                StrB64_Big_L2,
-            ];
+            const CODES: &[&str] =
+                &[StrB64_L0, StrB64_L1, StrB64_L2, StrB64_Big_L0, StrB64_Big_L1, StrB64_Big_L2];
 
             CODES.contains(&code)
         }
@@ -240,14 +230,7 @@ mod test {
 
     #[rstest]
     #[case("", matter::Codex::StrB64_L0, b"", b"4AAA", "4AAA", b"\xe0\x00\x00")]
-    #[case(
-        "-",
-        matter::Codex::StrB64_L2,
-        b">",
-        b"6AABAAA-",
-        "6AABAAA-",
-        b"\xe8\x00\x01\x00\x00>"
-    )]
+    #[case("-", matter::Codex::StrB64_L2, b">", b"6AABAAA-", "6AABAAA-", b"\xe8\x00\x01\x00\x00>")]
     #[case(
         "-A",
         matter::Codex::StrB64_L1,

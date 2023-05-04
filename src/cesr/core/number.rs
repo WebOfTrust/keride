@@ -28,11 +28,7 @@ pub mod tables {
 
 impl Default for Number {
     fn default() -> Self {
-        Number {
-            raw: vec![],
-            code: matter::Codex::Short.to_string(),
-            size: 0,
-        }
+        Number { raw: vec![], code: matter::Codex::Short.to_string(), size: 0 }
     }
 }
 
@@ -261,16 +257,7 @@ mod test {
     }
 
     #[rstest]
-    #[case(
-        0xffff,
-        "ffff",
-        number::Codex::Short,
-        b"\xff\xff",
-        "MP__",
-        b"MP__",
-        b"0\xff\xff",
-        true
-    )]
+    #[case(0xffff, "ffff", number::Codex::Short, b"\xff\xff", "MP__", b"MP__", b"0\xff\xff", true)]
     #[case(
         0xffffffff,
         "ffffffff",

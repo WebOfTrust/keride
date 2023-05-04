@@ -200,11 +200,7 @@ mod test {
 
     #[rstest]
     fn end_to_end(
-        #[values(
-            matter::Codex::Ed25519,
-            matter::Codex::ECDSA_256k1,
-            matter::Codex::ECDSA_256r1
-        )]
+        #[values(matter::Codex::Ed25519, matter::Codex::ECDSA_256k1, matter::Codex::ECDSA_256r1)]
         code: &str,
     ) {
         let ser = b"abcdefghijklmnopqrstuvwxyz";

@@ -31,11 +31,7 @@ pub struct Diger {
 
 impl Default for Diger {
     fn default() -> Self {
-        Diger {
-            raw: vec![],
-            code: matter::Codex::Blake3_256.to_string(),
-            size: 0,
-        }
+        Diger { raw: vec![], code: matter::Codex::Blake3_256.to_string(), size: 0 }
     }
 }
 
@@ -114,9 +110,7 @@ impl Diger {
         } else if let Some(diger) = diger {
             self.compare_diger(ser, diger)
         } else {
-            err!(Error::Value(
-                "both dig and diger may not be none".to_string()
-            ))
+            err!(Error::Value("both dig and diger may not be none".to_string()))
         }
     }
 
@@ -258,15 +252,8 @@ mod test {
         let raw = hex!("e1be4d7a8ab5560aa4199eea339849ba8e293d55ca0a81006726d184519e647f"
                                  "5b49b82f805a538c68915c1ae8035c900fd1d4b13902920fd05e1450822f36de");
 
-        let diger = Diger::new(
-            None,
-            Some(matter::Codex::Blake3_512),
-            Some(&raw),
-            None,
-            None,
-            None,
-        )
-        .unwrap();
+        let diger = Diger::new(None, Some(matter::Codex::Blake3_512), Some(&raw), None, None, None)
+            .unwrap();
         assert!(diger.verify(&[0, 1, 2]).unwrap());
     }
 
@@ -291,16 +278,12 @@ mod test {
         let code = matter::Codex::Blake2b_256;
         let raw = hash::digest(code, &ser).unwrap();
         let matter: Diger = Matter::new(Some(code), Some(&raw), None, None, None).unwrap();
-        assert!(diger
-            .compare(&ser, Some(&matter.qb64b().unwrap()), None)
-            .unwrap());
+        assert!(diger.compare(&ser, Some(&matter.qb64b().unwrap()), None).unwrap());
 
         // different ser, different algorithm - should return false
         let raw = hash::digest(code, &[0, 1, 2, 3]).unwrap();
         let matter: Diger = Matter::new(Some(code), Some(&raw), None, None, None).unwrap();
-        assert!(!diger
-            .compare(&ser, Some(&matter.qb64b().unwrap()), None)
-            .unwrap());
+        assert!(!diger.compare(&ser, Some(&matter.qb64b().unwrap()), None).unwrap());
     }
 
     #[test]
@@ -339,78 +322,34 @@ mod test {
         // compare() will exercise the most code
         let ser = b"abcdefghijklmnopqrstuvwxyz0123456789";
 
-        let diger0 = Diger::new(
-            Some(ser),
-            Some(matter::Codex::Blake3_256),
-            None,
-            None,
-            None,
-            None,
-        )
-        .unwrap();
-        let diger1 = Diger::new(
-            Some(ser),
-            Some(matter::Codex::SHA3_256),
-            None,
-            None,
-            None,
-            None,
-        )
-        .unwrap();
-        let diger2 = Diger::new(
-            Some(ser),
-            Some(matter::Codex::Blake2b_256),
-            None,
-            None,
-            None,
-            None,
-        )
-        .unwrap();
+        let diger0 =
+            Diger::new(Some(ser), Some(matter::Codex::Blake3_256), None, None, None, None).unwrap();
+        let diger1 =
+            Diger::new(Some(ser), Some(matter::Codex::SHA3_256), None, None, None, None).unwrap();
+        let diger2 =
+            Diger::new(Some(ser), Some(matter::Codex::Blake2b_256), None, None, None, None)
+                .unwrap();
 
         assert!(diger0.compare(ser, None, Some(&diger1)).unwrap());
         assert!(diger0.compare(ser, None, Some(&diger2)).unwrap());
         assert!(diger1.compare(ser, None, Some(&diger2)).unwrap());
 
-        assert!(diger0
-            .compare(ser, Some(&diger1.qb64b().unwrap()), None)
-            .unwrap());
-        assert!(diger0
-            .compare(ser, Some(&diger2.qb64b().unwrap()), None)
-            .unwrap());
-        assert!(diger1
-            .compare(ser, Some(&diger2.qb64b().unwrap()), None)
-            .unwrap());
+        assert!(diger0.compare(ser, Some(&diger1.qb64b().unwrap()), None).unwrap());
+        assert!(diger0.compare(ser, Some(&diger2.qb64b().unwrap()), None).unwrap());
+        assert!(diger1.compare(ser, Some(&diger2.qb64b().unwrap()), None).unwrap());
 
         let ser1 = b"ABCDEFGHIJKLMNOPQSTUVWXYXZabcdefghijklmnopqrstuvwxyz0123456789";
-        let diger = Diger::new(
-            Some(ser1),
-            Some(matter::Codex::Blake3_256),
-            None,
-            None,
-            None,
-            None,
-        )
-        .unwrap();
+        let diger = Diger::new(Some(ser1), Some(matter::Codex::Blake3_256), None, None, None, None)
+            .unwrap();
 
         assert!(!diger0.compare(ser, None, Some(&diger)).unwrap());
-        assert!(!diger0
-            .compare(ser, Some(&diger.qb64b().unwrap()), None)
-            .unwrap());
+        assert!(!diger0.compare(ser, Some(&diger.qb64b().unwrap()), None).unwrap());
 
-        let diger = Diger::new(
-            Some(ser1),
-            Some(matter::Codex::SHA3_256),
-            None,
-            None,
-            None,
-            None,
-        )
-        .unwrap();
+        let diger =
+            Diger::new(Some(ser1), Some(matter::Codex::SHA3_256), None, None, None, None).unwrap();
 
         assert!(!diger0.compare(ser, None, Some(&diger)).unwrap());
-        assert!(!diger0
-            .compare(ser, Some(&diger.qb64b().unwrap()), None)
-            .unwrap());
+        assert!(!diger0.compare(ser, Some(&diger.qb64b().unwrap()), None).unwrap());
     }
 
     #[test]

@@ -11,11 +11,7 @@ pub struct Verfer {
 
 impl Default for Verfer {
     fn default() -> Self {
-        Verfer {
-            raw: vec![],
-            code: matter::Codex::Ed25519.to_string(),
-            size: 0,
-        }
+        Verfer { raw: vec![], code: matter::Codex::Ed25519.to_string(), size: 0 }
     }
 }
 
@@ -144,10 +140,8 @@ mod test {
         let raw = hex!("0123456789abcdef00001111222233334444555566667777888899990000aaaa");
 
         let good_code = matter::Codex::Ed25519N;
-        let good_qb64 = Verfer::new(Some(good_code), Some(&raw), None, None, None)
-            .unwrap()
-            .qb64()
-            .unwrap();
+        let good_qb64 =
+            Verfer::new(Some(good_code), Some(&raw), None, None, None).unwrap().qb64().unwrap();
 
         let bad_code = matter::Codex::Blake3_256;
         let bad_qb64 = <Verfer as Matter>::new(Some(bad_code), Some(&raw), None, None, None)
@@ -164,10 +158,8 @@ mod test {
         let raw = hex!("0123456789abcdef00001111222233334444555566667777888899990000aaaa");
 
         let good_code = matter::Codex::Ed25519N;
-        let good_qb64b = Verfer::new(Some(good_code), Some(&raw), None, None, None)
-            .unwrap()
-            .qb64b()
-            .unwrap();
+        let good_qb64b =
+            Verfer::new(Some(good_code), Some(&raw), None, None, None).unwrap().qb64b().unwrap();
 
         let bad_code = matter::Codex::Blake3_256;
         let bad_qb64b = <Verfer as Matter>::new(Some(bad_code), Some(&raw), None, None, None)
@@ -184,10 +176,8 @@ mod test {
         let raw = hex!("0123456789abcdef00001111222233334444555566667777888899990000aaaa");
 
         let good_code = matter::Codex::Ed25519N;
-        let good_qb2 = Verfer::new(Some(good_code), Some(&raw), None, None, None)
-            .unwrap()
-            .qb2()
-            .unwrap();
+        let good_qb2 =
+            Verfer::new(Some(good_code), Some(&raw), None, None, None).unwrap().qb2().unwrap();
 
         let bad_code = matter::Codex::Blake3_256;
         let bad_qb2 = <Verfer as Matter>::new(Some(bad_code), Some(&raw), None, None, None)
@@ -249,14 +239,8 @@ mod test {
         let public_key = VerifyingKey::from(private_key);
         let raw = public_key.to_encoded_point(true).to_bytes();
 
-        let mut m = Verfer::new(
-            Some(matter::Codex::ECDSA_256k1),
-            Some(&raw),
-            None,
-            None,
-            None,
-        )
-        .unwrap();
+        let mut m =
+            Verfer::new(Some(matter::Codex::ECDSA_256k1), Some(&raw), None, None, None).unwrap();
         assert!(m.verify(&sig, &ser).unwrap());
         assert!(!m.verify(&bad_sig, &ser).unwrap());
         assert!(!m.verify(&sig, &bad_ser).unwrap());
@@ -286,14 +270,8 @@ mod test {
         let public_key = VerifyingKey::from(private_key);
         let raw = public_key.to_encoded_point(true).to_bytes();
 
-        let mut m = Verfer::new(
-            Some(matter::Codex::ECDSA_256r1),
-            Some(&raw),
-            None,
-            None,
-            None,
-        )
-        .unwrap();
+        let mut m =
+            Verfer::new(Some(matter::Codex::ECDSA_256r1), Some(&raw), None, None, None).unwrap();
         assert!(m.verify(&sig, &ser).unwrap());
         assert!(!m.verify(&bad_sig, &ser).unwrap());
         assert!(!m.verify(&sig, &bad_ser).unwrap());
@@ -307,12 +285,8 @@ mod test {
 
     #[test]
     fn unhappy_paths() {
-        assert!(Verfer {
-            code: matter::Codex::Blake3_256.to_string(),
-            raw: vec![],
-            size: 0
-        }
-        .verify(&[], &[])
-        .is_err());
+        assert!(Verfer { code: matter::Codex::Blake3_256.to_string(), raw: vec![], size: 0 }
+            .verify(&[], &[])
+            .is_err());
     }
 }

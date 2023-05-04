@@ -59,9 +59,6 @@ mod test {
             18, 204, 212, 191, 84, 194, 87, 100, 6, 30, 92, 215, 51, 38, 107, 153, 250, 56, 19, 67,
             240, 139, 73, 162, 108, 231, 67, 120, 152, 225, 46, 245,
         ];
-        assert_eq!(
-            salt::stretch(&[0; 16], &[0; 16], 32, Tierage::min).unwrap(),
-            expected
-        );
+        assert_eq!(salt::stretch(&[0; 16], &[0; 16], 32, Tierage::min).unwrap(), expected);
     }
 }

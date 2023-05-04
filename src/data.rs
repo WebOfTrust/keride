@@ -22,21 +22,13 @@ pub struct Number {
 
 impl From<f64> for Number {
     fn from(f: f64) -> Self {
-        Self {
-            f,
-            i: 0,
-            float: true,
-        }
+        Self { f, i: 0, float: true }
     }
 }
 
 impl From<i64> for Number {
     fn from(i: i64) -> Self {
-        Self {
-            f: 0.0,
-            i,
-            float: false,
-        }
+        Self { f: 0.0, i, float: false }
     }
 }
 
@@ -54,9 +46,7 @@ impl Value {
     pub fn to_bool(&self) -> Result<bool> {
         match self {
             Self::Boolean(boolean) => Ok(*boolean),
-            _ => err!(CESRError::Conversion(
-                "cannot convert to boolean".to_string()
-            )),
+            _ => err!(CESRError::Conversion("cannot convert to boolean".to_string())),
         }
     }
 
@@ -64,9 +54,7 @@ impl Value {
     pub fn to_string(&self) -> Result<String> {
         match self {
             Self::String(string) => Ok(string.clone()),
-            _ => err!(CESRError::Conversion(
-                "cannot convert to string".to_string()
-            )),
+            _ => err!(CESRError::Conversion("cannot convert to string".to_string())),
         }
     }
 
@@ -81,9 +69,7 @@ impl Value {
 
                 Ok(number.i)
             }
-            _ => err!(CESRError::Conversion(
-                "cannot convert to integer".to_string()
-            )),
+            _ => err!(CESRError::Conversion("cannot convert to integer".to_string())),
         }
     }
 
@@ -329,9 +315,7 @@ impl TryFrom<&Value> for String {
     fn try_from(v: &Value) -> Result<Self> {
         match v {
             Value::String(s) => Ok(s.clone()),
-            _ => err!(CESRError::Conversion(
-                "could not convert value to string".to_string()
-            )),
+            _ => err!(CESRError::Conversion("could not convert value to string".to_string())),
         }
     }
 }
@@ -342,9 +326,7 @@ impl TryFrom<&Value> for bool {
     fn try_from(v: &Value) -> Result<Self> {
         match v {
             Value::Boolean(b) => Ok(*b),
-            _ => err!(CESRError::Conversion(
-                "could not convert value to bool".to_string()
-            )),
+            _ => err!(CESRError::Conversion("could not convert value to bool".to_string())),
         }
     }
 }
@@ -361,9 +343,7 @@ impl TryFrom<&Value> for i64 {
                     Ok(n.f as i64)
                 }
             }
-            _ => err!(CESRError::Conversion(
-                "could not convert value to integer".to_string()
-            )),
+            _ => err!(CESRError::Conversion("could not convert value to integer".to_string())),
         }
     }
 }
@@ -380,9 +360,7 @@ impl TryFrom<&Value> for f64 {
                     Ok(n.i as f64)
                 }
             }
-            _ => err!(CESRError::Conversion(
-                "could not convert value to float".to_string()
-            )),
+            _ => err!(CESRError::Conversion("could not convert value to float".to_string())),
         }
     }
 }
@@ -393,9 +371,7 @@ impl TryFrom<&Value> for Vec<Value> {
     fn try_from(v: &Value) -> Result<Self> {
         match v {
             Value::Array(a) => Ok(a.clone()),
-            _ => err!(CESRError::Conversion(
-                "could not convert value to array".to_string()
-            )),
+            _ => err!(CESRError::Conversion("could not convert value to array".to_string())),
         }
     }
 }
@@ -406,9 +382,7 @@ impl TryFrom<&Value> for IndexMap<String, Value> {
     fn try_from(v: &Value) -> Result<Self> {
         match v {
             Value::Object(o) => Ok(o.clone()),
-            _ => err!(CESRError::Conversion(
-                "could not convert value to map".to_string()
-            )),
+            _ => err!(CESRError::Conversion("could not convert value to map".to_string())),
         }
     }
 }
@@ -663,10 +637,7 @@ mod test {
         assert_eq!(d["thing"].to_i64().unwrap(), 2);
         assert_eq!(d["other thing"][1].to_f64().unwrap(), 1.666);
         assert_eq!(d["other thing"][0].to_string().unwrap(), "string");
-        assert_eq!(
-            d["other thing"][4]["nested array"][1].to_vec().unwrap(),
-            vec![]
-        );
+        assert_eq!(d["other thing"][4]["nested array"][1].to_vec().unwrap(), vec![]);
         assert_eq!(
             d["other thing"][4]["nested array"][0].to_map().unwrap(),
             indexmap::IndexMap::new()

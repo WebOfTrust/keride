@@ -43,9 +43,7 @@ pub trait Indexer: Default {
             let code = if let Some(code) = code {
                 code
             } else {
-                return err!(Error::EmptyMaterial(
-                    "empty code specified with raw".to_string()
-                ));
+                return err!(Error::EmptyMaterial("empty code specified with raw".to_string()));
             };
 
             Self::new_with_code_and_raw(code, raw, index, ondex)
@@ -56,9 +54,7 @@ pub trait Indexer: Default {
         } else if let Some(qb2) = qb2 {
             Self::new_with_qb2(qb2)
         } else {
-            err!(Error::Validation(
-                "must specify raw and code, qb64b, qb64 or qb2".to_string()
-            ))
+            err!(Error::Validation("must specify raw and code, qb64b, qb64 or qb2".to_string()))
         }
     }
 
@@ -354,20 +350,14 @@ pub trait Indexer: Default {
 
         let n = ((cs + 1) * 3) / 4;
         let full = if n <= tables::SMALL_VRZ_BYTES {
-            (util::b64_to_u32(&both)? << (2 * (cs % 4)))
-                .to_be_bytes()
-                .to_vec()
+            (util::b64_to_u32(&both)? << (2 * (cs % 4))).to_be_bytes().to_vec()
         } else if n <= tables::LARGE_VRZ_BYTES {
-            (util::b64_to_u64(&both)? << (2 * (cs % 4)))
-                .to_be_bytes()
-                .to_vec()
+            (util::b64_to_u64(&both)? << (2 * (cs % 4))).to_be_bytes().to_vec()
         } else {
             // unreachable
             // programmer error - sizages will not permit cs > 8, thus:
             // (8 + 1) * 3 / 4 == 6, which means n <= 6, always.
-            return err!(Error::InvalidCodeSize(format!(
-                "Unsupported code size: cs = '{cs}'",
-            )));
+            return err!(Error::InvalidCodeSize(format!("Unsupported code size: cs = '{cs}'",)));
         };
 
         let mut buffer = vec![0u8; raw.len() + (szg.ls + n) as usize];
@@ -1038,9 +1028,7 @@ mod test {
     #[case(indexer::Codex::Ed25519_Big, 92)]
     #[case(indexer::Codex::Ed448_Big, 160)]
     fn raw_size(#[case] code: &str, #[case] full_size: usize) {
-        let raw = (0..full_size as usize - code.len())
-            .map(|_| "A")
-            .collect::<String>();
+        let raw = (0..full_size as usize - code.len()).map(|_| "A").collect::<String>();
         let qb64 = [code, &raw].join("");
         let indexer = TestIndexer::new(None, None, None, None, None, Some(&qb64), None).unwrap();
         assert_eq!(indexer.full_size().unwrap(), full_size);

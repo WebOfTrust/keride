@@ -251,10 +251,7 @@ mod test {
             .to_json()
             .unwrap()
         );
-        assert_eq!(
-            creder.issuer().unwrap(),
-            "ENayINhHQnx6525EpcTmkvo6ZixiJyiskwkVNbMPohYa"
-        );
+        assert_eq!(creder.issuer().unwrap(), "ENayINhHQnx6525EpcTmkvo6ZixiJyiskwkVNbMPohYa");
         assert_eq!(
             creder.subject().to_json().unwrap(),
             dat!({
@@ -264,10 +261,7 @@ mod test {
             .to_json()
             .unwrap()
         );
-        assert_eq!(
-            creder.schema().unwrap(),
-            "EE5uDJTq5cc6AEdqbyMpvARUjsK_chNdInf3xyRoCBcT"
-        );
+        assert_eq!(creder.schema().unwrap(), "EE5uDJTq5cc6AEdqbyMpvARUjsK_chNdInf3xyRoCBcT");
         assert_eq!(
             creder.status().unwrap().unwrap(),
             "EINZnO3Z30Q7y2oV1sDCQphieRH244-XJFRAbzuFbU7n"
@@ -287,13 +281,8 @@ mod test {
         let acdc_json = acdc_value.to_json().unwrap();
         let acdc_message = acdc_json.as_bytes();
 
-        let vs = versify(
-            Some(Identage::ACDC),
-            None,
-            None,
-            Some(acdc_message.len() as u32),
-        )
-        .unwrap();
+        let vs =
+            versify(Some(Identage::ACDC), None, None, Some(acdc_message.len() as u32)).unwrap();
         acdc_value["v"] = dat!(&vs);
         let (_, acdc_value) = Saider::saidify(&acdc_value, None, None, None, None).unwrap();
 
