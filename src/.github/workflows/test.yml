@@ -1,0 +1,63 @@
+name: Run tests
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          override: true
+
+      # format is the only step that doesn't require updating the crates.io cache, so we do it first
+      # to minimize ci cost when bailing early
+      - name: Format
+        run: cargo fmt --all -- --check
+
+      - name: Outdated
+        run: cargo outdated -R --exit-code 1
+
+      - name: Audit
+        run: cargo audit
+
+      - name: Check
+        run: cargo check
+
+      - name: Clippy
+        run: cargo clippy -- -D warnings
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Test
+        run: cargo test --release
+
+      - name: Tarpaulin
+        uses: actions-rs/tarpaulin@v0.1
+        with:
+          version: '0.22.0'
+
+      - name: WASM Sanity Build
+        run: |
+          cd wasm
+          cargo install wasm-pack
+          wasm-pack build
+
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{secrets.CODECOV_TOKEN}}
