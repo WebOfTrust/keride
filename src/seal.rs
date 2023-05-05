@@ -1,9 +1,6 @@
 use crate::{
-    cesr::core::{
-        matter::Matter,
-        seqner::Seqner,
-    },
-    error::{Result},
+    cesr::core::{matter::Matter, seqner::Seqner},
+    error::Result,
 };
 
 #[derive(Debug, Clone, PartialEq)]

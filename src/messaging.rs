@@ -7,7 +7,8 @@ use crate::{
         serder::Serder,
         siger::Siger,
     },
-    error::{err, Error, Result}, seal::Seal,
+    error::{err, Error, Result},
+    seal::Seal,
 };
 
 fn messagize(
