@@ -122,7 +122,6 @@ impl Creator for SaltyCreator {
         let pidx = pidx.unwrap_or(0);
         let ridx = ridx.unwrap_or(0);
         let kidx = kidx.unwrap_or(0);
-        // let stem = stem.unwrap_or_else(|| &format!("{}", &pidx));
         let ps = format!("{}", pidx.to_owned());
         let stem = if let Some(stem) = stem { Some(stem) } else { Some(ps.as_str()) }.unwrap();
 
@@ -143,10 +142,9 @@ impl Creator for SaltyCreator {
                 Some(&path),
                 Some(&self.tier),
                 Some(temp),
-            ));
+            ).unwrap());
         }
-        let v: Vec<Signer> = Vec::new();
-        v
+        signers
     }
 
     fn salt(&self) -> String {
