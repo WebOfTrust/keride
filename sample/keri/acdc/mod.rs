@@ -114,8 +114,8 @@ pub fn issue_acdc(
         "d": &iss_said,
     }]);
     let key_set = store.get_current_keys(issuer)?;
-    for verfer in &key_set.verfers()? {
-        k.push(dat!(&verfer.qb64()?));
+    for qb64 in &key_set.verfers_qb64()? {
+        k.push(dat!(qb64));
     }
     sigers.append(&mut key_set.sign(&acdc.raw(), None)?);
     let (ixn_said, ixn) = super::kmi::interact(&key_set, issuer, &dig, sn, &data)?;

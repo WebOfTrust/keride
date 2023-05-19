@@ -1,7 +1,7 @@
 use crate::error::{err, Error, Result};
 use cesride::{
     data::{dat, Value},
-    matter, Diger, Matter, Sadder, Salter,
+    matter, Sadder,
 };
 
 use super::KeySet;
@@ -39,7 +39,7 @@ pub fn incept_partial(
     salt: Option<&[u8]>,
     next_keys: Option<&[&str]>,
     next_sith: Option<&str>,
-) -> Result<(String, Vec<String>, String)> {
+) -> Result<(String, KeySet, String)> {
     let scount = scount.unwrap_or(2);
     let mut rcount = rcount.unwrap_or(3);
     let sn = 0u128;
@@ -49,52 +49,32 @@ pub fn incept_partial(
     #[cfg(test)]
     let temp: Option<bool> = Some(true);
 
-    let salter = Salter::new_with_defaults(tier)?;
-    let signers0 = salter.signers(
-        Some(scount),
-        None,
-        Some(&sn.to_string()),
-        code,
-        transferable,
-        None,
-        temp,
-    )?;
-    let mut keys = vec![];
-    for signer in &signers0 {
-        keys.push(signer.verfer().qb64()?);
-    }
+    let ckeys = KeySet::generate(code, Some(scount), 0, transferable, &sn.to_string(), tier, temp)?;
+    let keys = ckeys.verfers_qb64()?;
 
-    let mut ndigs = vec![];
-    if let Some(next_keys) = next_keys {
-        for key in next_keys {
-            ndigs.push(key.to_string());
-        }
-        rcount = ndigs.len();
-    } else {
-        let signers1 = if transferable.unwrap_or(false) {
-            if let Some(salt) = salt {
-                let salter = Salter::new(tier, None, Some(salt), None, None, None)?;
-                salter.signers(
-                    Some(rcount),
-                    None,
-                    Some(&(sn + 1).to_string()),
-                    code,
-                    transferable,
-                    None,
-                    temp,
-                )?
-            } else {
-                return err!(Error::Programmer);
-            }
+    let ndigs = if let Some(next_keys) = next_keys {
+        rcount = next_keys.len();
+        next_keys.iter().map(|s| s.to_string()).collect()
+    } else if let Some(salt) = salt {
+        if transferable.unwrap_or(false) {
+            let nkeys = KeySet::generate_from_salt(
+                salt,
+                code,
+                Some(rcount),
+                0,
+                transferable,
+                &(sn + 1).to_string(),
+                tier,
+                temp,
+            )?;
+
+            nkeys.digers_qb64()?
         } else {
             vec![]
-        };
-        for signer in &signers1 {
-            ndigs.push(Diger::new_with_ser(&signer.verfer().qb64b()?, None)?.qb64()?);
         }
-    }
-
-    // println!("{:?}", signers1.iter().map(|signer| signer.verfer().qb64().unwrap()).collect::<Vec<String>>());
+    } else {
+        return err!(Error::Programmer);
+    };
 
     let mut sith = vec![];
     for _ in 0..scount {
@@ -129,21 +109,11 @@ pub fn incept_partial(
         None,
     )?;
 
-    let mut privates = vec![];
-    for signer in &signers0 {
-        privates.push(signer.qb64()?);
-    }
-
-    let mut sigers = vec![];
-    for (index, signer) in signers0.iter().enumerate() {
-        let siger = signer.sign_indexed(&serder.raw(), false, index as u32, None)?;
-        sigers.push(siger);
-    }
-
+    let sigers = ckeys.sign(&serder.raw(), None)?;
     let endorsement = endorsement::endorse_serder(Some(&sigers), None, None, None)?;
     let event = message::messagize_serder(&serder, &endorsement, Some(true))?;
 
-    Ok((serder.pre()?, privates, event))
+    Ok((serder.pre()?, ckeys, event))
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -158,29 +128,21 @@ pub fn incept(
     transferable: Option<bool>,
     pcode: Option<&str>,
     tier: Option<&str>,
-) -> Result<(String, Vec<Vec<String>>, String)> {
-    let salter = Salter::new_with_defaults(tier)?;
-
+) -> Result<(String, Vec<KeySet>, String)> {
     #[cfg(not(test))]
     let temp: Option<bool> = None;
     #[cfg(test)]
     let temp: Option<bool> = Some(true);
 
-    let signers0 = salter.signers(count, None, Some("0"), code, transferable, None, temp)?;
-    let mut keys = vec![];
-    for signer in &signers0 {
-        keys.push(signer.verfer().qb64()?);
-    }
+    let ckeys = KeySet::generate(code, count, 0, transferable, "0", tier, temp)?;
+    let keys = ckeys.verfers_qb64()?;
 
-    let signers1 = if transferable.unwrap_or(false) {
-        salter.signers(ncount, None, Some("1"), ncode, transferable, None, temp)?
+    let (ndigs, nkeys) = if transferable.unwrap_or(false) {
+        let keys = KeySet::generate(ncode, ncount, 0, transferable, "0", tier, temp)?;
+        (keys.digers_qb64()?, Some(keys))
     } else {
-        vec![]
+        (vec![], None)
     };
-    let mut ndigs = vec![];
-    for signer in &signers1 {
-        ndigs.push(Diger::new_with_ser(&signer.verfer().qb64b()?, None)?.qb64()?);
-    }
 
     let wcount = wcount.map(|wcount| wcount as u128);
     let serder = event::incept(
@@ -199,24 +161,14 @@ pub fn incept(
         None,
     )?;
 
-    let mut result = vec![];
-
-    for signers in &[signers0.clone(), signers1] {
-        let mut privates = vec![];
-        for signer in signers {
-            privates.push(signer.qb64()?);
-        }
-        result.push(privates);
-    }
-
-    let mut sigers = vec![];
-    for (index, signer) in signers0.iter().enumerate() {
-        let siger = signer.sign_indexed(&serder.raw(), false, index as u32, None)?;
-        sigers.push(siger);
-    }
-
+    let sigers = ckeys.sign(&serder.raw(), None)?;
     let endorsement = endorsement::endorse_serder(Some(&sigers), None, None, None)?;
     let event = message::messagize_serder(&serder, &endorsement, Some(true))?;
+
+    let mut result = vec![ckeys];
+    if let Some(nkeys) = nkeys {
+        result.push(nkeys);
+    }
 
     Ok((serder.pre()?, result, event))
 }
@@ -236,7 +188,7 @@ pub fn rotate_partial(
     current_rotation_keys: Option<&[&str]>,
     next_keys: Option<&[&str]>,
     next_sith: Option<&str>,
-) -> Result<(String, usize, Vec<String>, String)> {
+) -> Result<(String, KeySet, String)> {
     let scount = scount.unwrap_or(2);
     let mut rcount = rcount.unwrap_or(3);
     let mut ccount = rcount;
@@ -246,19 +198,7 @@ pub fn rotate_partial(
     #[cfg(test)]
     let temp: Option<bool> = Some(true);
 
-    let salter = Salter::new_with_defaults(tier)?;
-    let mut ssigners = salter.signers(
-        Some(scount),
-        None,
-        Some(&key_sn.to_string()),
-        code,
-        Some(true),
-        None,
-        temp,
-    )?;
-
-    let mut keys = vec![];
-    let (public_keys, ndigs, signers) = if let Some(salt) = salt {
+    let (mut public_keys, ndigs, ckeys) = if let Some(salt) = salt {
         if current_rotation_keys.is_some() || next_keys.is_some() || next_sith.is_some() {
             return err!(Error::Value);
         }
@@ -269,41 +209,28 @@ pub fn rotate_partial(
             return err!(Error::Value);
         };
 
-        let salter = Salter::new(tier, None, Some(salt), None, None, None)?;
-        let mut signers = salter.signers(
-            Some(rcount),
-            None,
-            Some(&key_sn.to_string()),
+        let ckeys = KeySet::generate_from_salt(
+            salt,
             code,
+            Some(ccount),
+            0,
             Some(true),
-            None,
+            &key_sn.to_string(),
+            tier,
             temp,
         )?;
-        let salter = Salter::new(tier, None, Some(next_salt), None, None, None)?;
-        let nsigners = salter.signers(
-            Some(rcount),
-            None,
-            Some(&(key_sn + 1).to_string()),
+        let rkeys = KeySet::generate_from_salt(
+            next_salt,
             code,
+            Some(rcount),
+            0,
             Some(true),
-            None,
+            &(key_sn + 1).to_string(),
+            tier,
             temp,
         )?;
 
-        signers.append(&mut ssigners);
-
-        let mut public_keys = vec![];
-        for signer in &signers {
-            keys.push(signer.qb64()?);
-            public_keys.push(signer.verfer().qb64()?);
-        }
-
-        let mut ndigs = vec![];
-        for nsigner in &nsigners {
-            ndigs.push(Diger::new_with_ser(&nsigner.verfer().qb64b()?, None)?.qb64()?);
-        }
-
-        (public_keys, ndigs, signers)
+        (ckeys.verfers_qb64()?, rkeys.digers_qb64()?, Some(ckeys))
     } else {
         if current_rotation_keys.is_none() || next_keys.is_none() || next_sith.is_none() {
             return err!(Error::Value);
@@ -312,20 +239,19 @@ pub fn rotate_partial(
             return err!(Error::Value);
         }
 
-        let mut public_keys: Vec<String> =
+        let public_keys: Vec<String> =
             current_rotation_keys.unwrap().iter().map(|s| s.to_string()).collect();
         let next_keys: Vec<String> = next_keys.unwrap().iter().map(|s| s.to_string()).collect();
 
         ccount = public_keys.len();
         rcount = next_keys.len();
 
-        for signer in &ssigners {
-            keys.push(signer.qb64()?);
-            public_keys.push(signer.verfer().qb64()?);
-        }
-
-        (public_keys, next_keys, ssigners)
+        (public_keys, next_keys, None)
     };
+
+    let skeys =
+        KeySet::generate(code, Some(scount), ccount, Some(true), &key_sn.to_string(), tier, temp)?;
+    public_keys.append(&mut skeys.verfers_qb64()?);
 
     let mut sith = vec![];
     for _ in 0..ccount {
@@ -367,25 +293,25 @@ pub fn rotate_partial(
     )?;
 
     if next_sith.is_some() {
-        return Ok((serder.said()?, ccount, keys, String::from_utf8(serder.raw())?));
+        return Ok((serder.said()?, skeys, String::from_utf8(serder.raw())?));
     }
 
-    let mut sigers = vec![];
-    for (index, signer) in signers.iter().enumerate() {
-        let siger = signer.sign_indexed(&serder.raw(), false, index as u32, None)?;
-        sigers.push(siger);
+    if let Some(ckeys) = ckeys {
+        let mut sigers = ckeys.sign(&serder.raw(), None)?;
+        sigers.append(&mut skeys.sign(&serder.raw(), None)?);
+        let endorsement = endorsement::endorse_serder(Some(&sigers), None, None, None)?;
+        let event = message::messagize_serder(&serder, &endorsement, Some(true))?;
+
+        Ok((serder.said()?, skeys, event))
+    } else {
+        err!(Error::Programmer)
     }
-
-    let endorsement = endorsement::endorse_serder(Some(&sigers), None, None, None)?;
-    let event = message::messagize_serder(&serder, &endorsement, Some(true))?;
-
-    Ok((serder.said()?, ccount, keys, event))
 }
 
 #[allow(clippy::too_many_arguments)]
 pub fn rotate(
     pre: &str,
-    key_set: &KeySet,
+    ckeys: &KeySet,
     dig: &str,
     sn: u128,
     sith: Option<&Value>,
@@ -394,35 +320,16 @@ pub fn rotate(
     nsith: Option<&Value>,
     wcount: Option<usize>,
     tier: Option<&str>,
-) -> Result<(String, Vec<String>, String)> {
-    let salter = Salter::new_with_defaults(tier)?;
-    // this can give us the same witnesses as inception
-    // let fixed_salter = Salter::new_with_raw(b"0000000000000000", None, Some(Tierage::low))?;
-
+) -> Result<(String, KeySet, String)> {
     #[cfg(not(test))]
     let temp: Option<bool> = None;
     #[cfg(test)]
     let temp: Option<bool> = Some(true);
 
-    let nsigners =
-        salter.signers(ncount, None, Some(&sn.to_string()), ncode, Some(true), None, temp)?;
+    let nkeys = KeySet::generate(ncode, ncount, 0, Some(true), &sn.to_string(), tier, temp)?;
 
-    let mut result = vec![];
-    let mut digers = vec![];
-    for nsigner in &nsigners {
-        result.push(nsigner.qb64()?);
-        digers.push(Diger::new_with_ser(&nsigner.verfer().qb64b()?, None)?);
-    }
-
-    let mut ndigs = vec![];
-    for diger in &digers {
-        ndigs.push(diger.qb64()?);
-    }
-
-    let mut public_keys = vec![];
-    for verfer in &key_set.verfers()? {
-        public_keys.push(verfer.qb64()?);
-    }
+    let ndigs = nkeys.digers_qb64()?;
+    let public_keys = ckeys.verfers_qb64()?;
 
     let wcount = wcount.map(|wcount| wcount as u128);
     let serder = event::rotate(
@@ -444,22 +351,22 @@ pub fn rotate(
         None,
     )?;
 
-    let sigers = key_set.sign(&serder.raw(), Some(&digers))?;
+    let sigers = ckeys.sign(&serder.raw(), None)?;
     let endorsement = endorsement::endorse_serder(Some(&sigers), None, None, None)?;
     let event = message::messagize_serder(&serder, &endorsement, Some(true))?;
 
-    Ok((serder.said()?, result, event))
+    Ok((serder.said()?, nkeys, event))
 }
 
 pub(crate) fn interact(
-    key_set: &KeySet, // current signing keys
-    pre: &str,        // identifier prefix
-    dig: &str,        // previous event said
-    sn: u128,         // sequence number
-    data: &Value,     // seals
+    keys: &KeySet, // current signing keys
+    pre: &str,     // identifier prefix
+    dig: &str,     // previous event said
+    sn: u128,      // sequence number
+    data: &Value,  // seals
 ) -> Result<(String, String)> {
     let serder = event::interact(pre, dig, Some(sn), Some(data), None, None)?;
-    let sigers = key_set.sign(&serder.raw(), None)?;
+    let sigers = keys.sign(&serder.raw(), None)?;
     let endorsement = endorsement::endorse_serder(Some(&sigers), None, None, None)?;
     let event = message::messagize_serder(&serder, &endorsement, Some(true))?;
 

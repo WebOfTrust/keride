@@ -5,19 +5,65 @@ pub(crate) mod parsing;
 pub(crate) mod verification;
 
 use crate::error::{err, Error, Result};
-use cesride::{Diger, Matter, Siger, Signer, Verfer};
+use cesride::{Diger, Matter, Salter, Siger, Signer, Verfer};
 use serde::{Deserialize, Serialize};
 use zeroize::Zeroize;
 
 #[derive(Serialize, Deserialize, Zeroize)]
 pub struct KeySet {
-    pub keys: Vec<String>,
+    keys: Vec<String>,
     pub index_offset: usize,
     pub transferable: bool,
 }
 
 impl KeySet {
-    pub fn signers(&self) -> Result<Vec<Signer>> {
+    pub fn generate(
+        code: Option<&str>,
+        count: Option<usize>,
+        offset: usize,
+        transferable: Option<bool>,
+        path: &str,
+        tier: Option<&str>,
+        temp: Option<bool>,
+    ) -> Result<Self> {
+        let transferable = transferable.unwrap_or(false);
+        let salter = Salter::new_with_defaults(tier)?;
+        let mut keys = vec![];
+        for signer in salter.signers(count, None, Some(path), code, Some(true), None, temp)? {
+            keys.push(signer.qb64()?);
+        }
+
+        Ok(KeySet { keys, index_offset: offset, transferable })
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn generate_from_salt(
+        salt: &[u8],
+        code: Option<&str>,
+        count: Option<usize>,
+        offset: usize,
+        transferable: Option<bool>,
+        path: &str,
+        tier: Option<&str>,
+        temp: Option<bool>,
+    ) -> Result<Self> {
+        let transferable = transferable.unwrap_or(false);
+        let salter = Salter::new(tier, None, Some(salt), None, None, None)?;
+        let mut keys = vec![];
+        for signer in
+            &salter.signers(count, None, Some(path), code, Some(transferable), None, temp)?
+        {
+            keys.push(signer.qb64()?);
+        }
+
+        Ok(KeySet { keys, index_offset: offset, transferable })
+    }
+
+    pub fn len(&self) -> usize {
+        self.keys.len()
+    }
+
+    fn signers(&self) -> Result<Vec<Signer>> {
         let mut result = vec![];
         for key in &self.keys {
             let signer = Signer::new_with_qb64(key, Some(self.transferable))?;
@@ -26,7 +72,7 @@ impl KeySet {
         Ok(result)
     }
 
-    pub fn verfers(&self) -> Result<Vec<Verfer>> {
+    fn verfers(&self) -> Result<Vec<Verfer>> {
         let mut verfers = vec![];
 
         for signer in &self.signers()? {
@@ -34,6 +80,36 @@ impl KeySet {
         }
 
         Ok(verfers)
+    }
+
+    pub fn verfers_qb64(&self) -> Result<Vec<String>> {
+        let mut verfers_qb64 = vec![];
+
+        for verfer in &self.verfers()? {
+            verfers_qb64.push(verfer.qb64()?);
+        }
+
+        Ok(verfers_qb64)
+    }
+
+    fn digers(&self) -> Result<Vec<Diger>> {
+        let mut digers = vec![];
+
+        for verfer in &self.verfers()? {
+            digers.push(Diger::new_with_ser(&verfer.qb64b()?, None)?);
+        }
+
+        Ok(digers)
+    }
+
+    pub fn digers_qb64(&self) -> Result<Vec<String>> {
+        let mut digers_qb64 = vec![];
+
+        for diger in &self.digers()? {
+            digers_qb64.push(diger.qb64()?);
+        }
+
+        Ok(digers_qb64)
     }
 
     // if you pass in digers, this will throw a Validation error if the number of digers matched
@@ -73,13 +149,7 @@ impl KeySet {
 pub trait KeriStore {
     fn prefix(&self) -> String;
 
-    fn insert_keys(
-        &mut self,
-        pre: &str,
-        keys: &[String],
-        index_offset: usize,
-        transferable: bool,
-    ) -> Result<KeySet>;
+    fn insert_keys(&mut self, pre: &str, keys: &KeySet) -> Result<()>;
     fn insert_sad(&mut self, sad: &str) -> Result<()>;
     fn insert_acdc(&mut self, acdc: &str) -> Result<()>;
     fn insert_key_event(&mut self, pre: &str, event: &str) -> Result<()>;
