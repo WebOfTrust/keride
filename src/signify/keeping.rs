@@ -173,7 +173,7 @@ mod test {
             core::matter::{tables as matter, Matter},
             Salter,
         },
-        signify::keeping::{Algo, Creator},
+        signify::keeping::Creator,
     };
 
     use super::SaltyCreator;
