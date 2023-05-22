@@ -10,51 +10,22 @@ use crate::signing::Signer;
 
 pub const STEM: &str = "signify:aid";
 
-// pub trait Keeper: Default {
-//     fn new(
-//         salter: Salter,
-//         pidx: u32,
-//         kidx: u32,
-//         tier: &str,
-//         transferable: bool,
-//         stem: Option<&str>,
-//         code: Option<&str>,
-//         count: u32,
-//         icodes: Vec<&str>,
-//         ncode: Option<&str>,
-//         ncount: u32,
-//         ncodes: Vec<&str>,
-//         dcode: Option<&str>,
-//     ) -> Result<Self> {
-//         Ok(())
-//     }
-// }
-
-#[derive(Debug)]
-pub enum Algo {
-    Salty,
-    Randy,
-}
-
 /// Creating a key pair based on algorithm.
-pub trait Creator: Default {
-    #[allow(clippy::too_many_arguments)]
-    fn create(
-        &self,
-        codes: Option<Vec<&str>>,
-        count: Option<u16>,
-        code: Option<&str>,
-        pidx: Option<u16>,
-        ridx: Option<u16>,
-        kidx: Option<u16>,
-        stem: Option<&str>,
-        transferable: Option<bool>,
-        temp: bool,
-    ) -> Vec<Signer>;
-    fn salt(&self) -> String;
-    fn stem(&self) -> String;
-    fn tier(&self) -> String;
-}
+// pub trait Creator: Default {
+//     #[allow(clippy::too_many_arguments)]
+//     fn create(
+//         &self,
+//         codes: Option<Vec<&str>>,
+//         count: Option<u16>,
+//         code: Option<&str>,
+//         pidx: Option<u16>,
+//         ridx: Option<u16>,
+//         kidx: Option<u16>,
+//         stem: Option<&str>,
+//         transferable: Option<bool>,
+//         temp: bool,
+//     ) -> Vec<Signer>;
+// }
 
 #[derive(Debug, ZeroizeOnDrop)]
 pub struct SaltyCreator {
@@ -100,20 +71,7 @@ impl SaltyCreator {
     fn set_tier(&mut self, tier: &str) {
         self.tier = tier.to_string();
     }
-}
 
-impl Default for SaltyCreator {
-    fn default() -> Self {
-        SaltyCreator {
-            salt: "".to_string(),
-            stem: "".to_string(),
-            tier: Tierage::low.to_string(),
-            salter: Salter::new(Some(Tierage::low), None, None, None, None, None).unwrap(),
-        }
-    }
-}
-
-impl Creator for SaltyCreator {
     #[allow(clippy::too_many_arguments)]
     fn create(
         &self,
@@ -152,34 +110,61 @@ impl Creator for SaltyCreator {
         }
         signers
     }
+}
 
-    fn salt(&self) -> String {
-        self.salt.clone()
+impl Default for SaltyCreator {
+    fn default() -> Self {
+        SaltyCreator {
+            salt: "".to_string(),
+            stem: "".to_string(),
+            tier: Tierage::low.to_string(),
+            salter: Salter::new(Some(Tierage::low), None, None, None, None, None).unwrap(),
+        }
+    }
+}
+
+#[derive(Debug, Default)]
+pub struct RandyCreator {}
+
+impl RandyCreator {
+    fn new() -> Self {
+        Self::default()
     }
 
-    fn stem(&self) -> String {
-        self.stem.clone()
-    }
+    fn create(
+        &self,
+        codes: Option<Vec<&str>>,
+        count: Option<u16>,
+        code: Option<&str>,
+        transferable: Option<bool>,
+    ) -> Vec<Signer> {
+        let code = code.unwrap_or(matter::Codex::Ed25519_Seed);
+        let count = count.unwrap_or(1);
+        let mut codes = codes.unwrap_or(vec![]);
+        let transferable = transferable.unwrap_or(true);
 
-    fn tier(&self) -> String {
-        self.tier.clone()
+        if codes.is_empty() {
+            codes = (0..count).map(|_| code).collect();
+        }
+
+        codes
+            .iter()
+            .map(|c| Signer::new(Some(transferable), Some(c), None, None, None, None).unwrap())
+            .collect()
     }
 }
 
 #[cfg(test)]
 mod test {
-    use crate::{
-        cesr::{
-            core::matter::{tables as matter, Matter},
-            Salter,
-        },
-        signify::keeping::Creator,
+    use crate::cesr::{
+        core::matter::{tables as matter, Matter},
+        Salter,
     };
 
-    use super::SaltyCreator;
+    use super::{RandyCreator, SaltyCreator};
 
     #[test]
-    fn test_python_interop() {
+    fn test_salty_python_interop() {
         let sc = SaltyCreator::new(None, None, None, None).unwrap();
         assert_eq!(sc.salter.code(), matter::Codex::Salt_128);
         assert_eq!(sc.stem, "");
@@ -229,5 +214,24 @@ mod test {
         assert_eq!(signer.qb64().unwrap(), "AMGrAM0noxLpRteO9mxGT-yzYSrKFwJMuNI4KlmSk26e");
         assert_eq!(signer.verfer().code(), matter::Codex::Ed25519N);
         assert_eq!(signer.verfer().qb64().unwrap(), "BFRtyHAjSuJaRX6TDPva35GN11VHAruaOXMc79ZYDKsT");
+    }
+
+    #[test]
+    fn test_randy_python_interop() {
+        let rc = RandyCreator::new();
+        let signers = rc.create(None, None, None, None);
+        assert_eq!(signers.len(), 1);
+
+        let signer = &signers[0];
+        assert_eq!(signer.code(), matter::Codex::Ed25519_Seed);
+        assert_eq!(signer.verfer().code(), matter::Codex::Ed25519);
+
+        let signers = rc.create(None, Some(2), None, Some(false));
+        assert_eq!(signers.len(), 2);
+
+        for signer in signers.iter() {
+            assert_eq!(signer.code(), matter::Codex::Ed25519_Seed);
+            assert_eq!(signer.verfer().code(), matter::Codex::Ed25519N);
+        }
     }
 }
