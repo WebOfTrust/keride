@@ -5,8 +5,10 @@
 #[cfg(feature = "cesr")]
 pub mod cesr;
 #[macro_use]
-#[cfg(feature = "signing")]
+#[cfg(feature = "signify")]
 pub mod signing;
+#[cfg(feature = "signify")]
+pub mod signify;
 #[macro_use]
 #[cfg(feature = "prefixing")]
 pub mod prefexing;

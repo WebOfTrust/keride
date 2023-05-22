@@ -21,3 +21,4 @@ preflight:
 	cargo build --release
 	cargo test --release
 	cargo tarpaulin
+	# cd wasm && wasm-pack build && wasm-pack build --target=nodejs
