@@ -173,7 +173,7 @@ mod test {
             core::matter::{tables as matter, Matter},
             Salter,
         },
-        signify::keeping::{Algo, Creator, Creatory},
+        signify::keeping::{Algo, Creator},
     };
 
     use super::SaltyCreator;
@@ -229,7 +229,5 @@ mod test {
         assert_eq!(signer.qb64().unwrap(), "AMGrAM0noxLpRteO9mxGT-yzYSrKFwJMuNI4KlmSk26e");
         assert_eq!(signer.verfer().code(), matter::Codex::Ed25519N);
         assert_eq!(signer.verfer().qb64().unwrap(), "BFRtyHAjSuJaRX6TDPva35GN11VHAruaOXMc79ZYDKsT");
-
-        Creatory::new(Algo::Salty).make();
     }
 }
