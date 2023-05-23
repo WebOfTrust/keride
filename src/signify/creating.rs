@@ -73,7 +73,7 @@ impl SaltyCreator {
     }
 
     #[allow(clippy::too_many_arguments)]
-    fn create(
+    pub fn create(
         &self,
         codes: Option<Vec<&str>>,
         count: Option<u16>,
@@ -92,8 +92,13 @@ impl SaltyCreator {
         let ridx = ridx.unwrap_or(0);
         let kidx = kidx.unwrap_or(0);
         let ps = format!("{:x}", pidx.to_owned());
-        let stem = stem.unwrap_or(ps.as_str());
         let transferable = transferable.unwrap_or(true);
+
+        let stem = if !self.stem.is_empty() {
+            self.stem.as_str()
+        } else {
+            stem.unwrap_or(ps.as_str())
+        };
 
         if codes.is_empty() {
             codes = (0..count).map(|_| code).collect();
