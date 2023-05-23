@@ -94,11 +94,8 @@ impl SaltyCreator {
         let ps = format!("{:x}", pidx.to_owned());
         let transferable = transferable.unwrap_or(true);
 
-        let stem = if !self.stem.is_empty() {
-            self.stem.as_str()
-        } else {
-            stem.unwrap_or(ps.as_str())
-        };
+        let stem =
+            if !self.stem.is_empty() { self.stem.as_str() } else { stem.unwrap_or(ps.as_str()) };
 
         if codes.is_empty() {
             codes = (0..count).map(|_| code).collect();
@@ -219,6 +216,17 @@ mod test {
         assert_eq!(signer.qb64().unwrap(), "AMGrAM0noxLpRteO9mxGT-yzYSrKFwJMuNI4KlmSk26e");
         assert_eq!(signer.verfer().code(), matter::Codex::Ed25519N);
         assert_eq!(signer.verfer().qb64().unwrap(), "BFRtyHAjSuJaRX6TDPva35GN11VHAruaOXMc79ZYDKsT");
+
+        let sc = SaltyCreator::new(Some(&salt), Some("0123456789abcdefghijk"), None, None).unwrap();
+        let signers = sc.create(None, None, None, None, None, None, None, None, false);
+        assert_eq!(signers.len(), 1);
+        let signer = &signers[0];
+        println!("{:?}", signer.qb64().unwrap());
+        println!("{:?}", signer.verfer().qb64().unwrap());
+        assert_eq!(signer.code(), matter::Codex::Ed25519_Seed);
+        assert_eq!(signer.qb64().unwrap(), "AKs7xnPXuqeGHjuz73YcxRp7AS608EQLv1XxJg_owymy");
+        assert_eq!(signer.verfer().code(), matter::Codex::Ed25519);
+        assert_eq!(signer.verfer().qb64().unwrap(), "DDz3MqwHaEmcMmGflJb-Y48xeBDeub50d7jDA6ED09Pk");
     }
 
     #[test]
