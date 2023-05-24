@@ -1,5 +1,5 @@
-use crate::cesr::core::indexer::{tables as indexer, Indexer};
-use crate::cesr::core::verfer::Verfer;
+use crate::cesr::indexer::{tables as indexer, Indexer};
+use crate::cesr::verfer::Verfer;
 use crate::error::{err, Error, Result};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -138,7 +138,7 @@ impl Indexer for Siger {
 #[cfg(test)]
 mod test {
     use super::{indexer, Indexer, Siger, Verfer};
-    use crate::cesr::core::matter::tables as matter;
+    use crate::cesr::matter::tables as matter;
     use base64::{engine::general_purpose as b64_engine, Engine};
     use hex_literal::hex;
 

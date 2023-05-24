@@ -1,6 +1,6 @@
 use blake2::Digest;
 
-use crate::cesr::core::matter::tables as matter;
+use crate::cesr::matter::tables as matter;
 use crate::error::{err, Error, Result};
 
 type Blake2b256 = blake2::Blake2b<blake2::digest::consts::U32>;
@@ -60,8 +60,8 @@ pub(crate) fn digest(code: &str, ser: &[u8]) -> Result<Vec<u8>> {
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::matter::tables as matter;
-    use crate::cesr::crypto::hash;
+    use crate::cesr::matter::tables as matter;
+    use crate::crypto::hash;
     use hex_literal::hex;
     use rstest::rstest;
 

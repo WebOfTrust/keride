@@ -1,4 +1,4 @@
-use crate::cesr::core::common::Tierage;
+use crate::cesr::common::Tierage;
 use crate::error::{err, Error, Result};
 use argon2::{Algorithm, Argon2, Params, Version};
 
@@ -36,8 +36,8 @@ pub(crate) fn stretch(pwd: &[u8], salt: &[u8], length: usize, tier: &str) -> Res
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::common::Tierage;
-    use crate::cesr::crypto::salt;
+    use crate::cesr::common::Tierage;
+    use crate::crypto::salt;
 
     #[test]
     fn params() {

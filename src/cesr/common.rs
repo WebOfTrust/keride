@@ -313,7 +313,7 @@ pub fn sniff(raw: &[u8]) -> Result<SniffResult> {
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::common;
+    use crate::cesr::common;
     use crate::data::dat;
     use rstest::rstest;
 

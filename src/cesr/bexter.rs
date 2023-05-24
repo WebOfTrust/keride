@@ -1,5 +1,5 @@
 use crate::{
-    cesr::core::{
+    cesr::{
         matter::{tables as matter, Matter},
         util::REB64_STRING,
     },
@@ -45,7 +45,7 @@ pub mod tables {
     #[allow(non_snake_case)]
     #[allow(non_upper_case_globals)]
     pub mod Codex {
-        use crate::cesr::core::matter::tables as matter;
+        use crate::cesr::matter::tables as matter;
 
         const StrB64_L0: &str = matter::Codex::StrB64_L0;
         const StrB64_L1: &str = matter::Codex::StrB64_L1;
@@ -169,8 +169,8 @@ impl Matter for Bexter {
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::bexter::{Bext, Bexter};
-    use crate::cesr::core::matter::{tables as matter, Matter};
+    use crate::cesr::bexter::{Bext, Bexter};
+    use crate::cesr::matter::{tables as matter, Matter};
 
     use rstest::rstest;
 

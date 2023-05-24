@@ -158,7 +158,7 @@ pub mod Codex {
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::matter::tables::{self as matter, Codex};
+    use crate::cesr::matter::tables::{self as matter, Codex};
     use rstest::rstest;
 
     #[rstest]

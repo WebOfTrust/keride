@@ -1,6 +1,6 @@
 pub mod tables;
 
-use crate::cesr::core::util;
+use crate::cesr::util;
 use crate::error::{err, Error, Result};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -316,7 +316,7 @@ impl Default for Counter {
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::counter::{tables as counter, Counter};
+    use crate::cesr::counter::{tables as counter, Counter};
     use base64::{engine::general_purpose as b64_engine, Engine};
     use rstest::rstest;
 
