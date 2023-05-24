@@ -2,9 +2,9 @@ use anyhow::Ok;
 use zeroize::ZeroizeOnDrop;
 
 use crate::cesr::common::Tierage;
-use crate::cesr::Salter;
+use crate::cesr::salter::Salter;
 
-use crate::cesr::core::matter::tables as matter;
+use crate::cesr::matter::tables as matter;
 use crate::error::Result;
 use crate::signing::Signer;
 
@@ -159,8 +159,8 @@ impl RandyCreator {
 #[cfg(test)]
 mod test {
     use crate::cesr::{
-        core::matter::{tables as matter, Matter},
-        Salter,
+        matter::{tables as matter, Matter},
+        salter::Salter,
     };
 
     use super::{RandyCreator, SaltyCreator};

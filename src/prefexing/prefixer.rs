@@ -1,13 +1,11 @@
 use crate::{
     cesr::{
-        core::{
-            common::{sizeify, Ids, Ilkage, DUMMY},
-            diger::Diger,
-            matter::{tables as matter, Matter},
-            verfer::Verfer,
-        },
-        crypto::hash,
+        common::{sizeify, Ids, Ilkage, DUMMY},
+        diger::Diger,
+        matter::{tables as matter, Matter},
+        verfer::Verfer,
     },
+    crypto::hash,
     data::{dat, Value},
     error::{err, Error, Result},
 };
@@ -395,7 +393,7 @@ mod test {
     use crate::prefexing::prefixer::Prefixer;
     use crate::signing::signer::Signer;
     use crate::{
-        cesr::core::{
+        cesr::{
             common::{sizeify, versify, Ilkage, Serialage, CURRENT_VERSION},
             diger::Diger,
             matter::{tables as matter, Matter},

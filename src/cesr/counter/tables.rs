@@ -71,7 +71,7 @@ pub mod Codex {
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::counter::tables as matter;
+    use crate::cesr::counter::tables as matter;
     use rstest::rstest;
 
     #[rstest]

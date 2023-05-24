@@ -183,7 +183,7 @@ pub(crate) fn bardage(b: u8) -> Result<u32> {
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::indexer::tables::{
+    use crate::cesr::indexer::tables::{
         self as indexer, BothSigCodex, Codex, CurrentSigCodex, SigCodex,
     };
     use rstest::rstest;

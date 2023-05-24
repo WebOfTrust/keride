@@ -1,4 +1,4 @@
-use crate::cesr::core::matter::{tables as matter, Matter};
+use crate::cesr::matter::{tables as matter, Matter};
 use crate::error::{err, Error, Result};
 
 #[derive(Debug, Clone, PartialEq)]

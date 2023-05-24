@@ -1,4 +1,4 @@
-use crate::cesr::core::matter::{tables as matter, Matter};
+use crate::cesr::matter::{tables as matter, Matter};
 use crate::error::{err, Error, Result};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -12,7 +12,7 @@ pub struct Number {
 #[allow(non_upper_case_globals)]
 pub mod tables {
     pub mod Codex {
-        use crate::cesr::core::matter::tables as matter;
+        use crate::cesr::matter::tables as matter;
 
         pub const Short: &str = matter::Codex::Short; // Short 2 octet unsigned integer
         pub const Long: &str = matter::Codex::Long; // Long 4 octet unsigned integer
@@ -186,7 +186,7 @@ impl Matter for Number {
 #[cfg(test)]
 #[allow(clippy::too_many_arguments)]
 mod test {
-    use crate::cesr::core::{
+    use crate::cesr::{
         matter::Matter,
         number::{tables as number, Number},
     };

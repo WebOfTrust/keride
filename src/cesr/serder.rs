@@ -1,5 +1,5 @@
 use crate::{
-    cesr::core::{
+    cesr::{
         common::{Identage, Ids, Ilkage, Serialage, Version, CURRENT_VERSION},
         diger::Diger,
         matter::tables as matter,
@@ -276,7 +276,7 @@ impl Sadder for Serder {
 #[cfg(test)]
 pub(crate) mod test {
     use crate::{
-        cesr::core::{
+        cesr::{
             common::{
                 sniff, versify, Identage, Ids, Ilkage, Serialage, Version, CURRENT_VERSION,
                 MINIMUM_SNIFF_SIZE, VERSION_FULL_SIZE,

@@ -1,5 +1,5 @@
 use crate::{
-    cesr::core::{
+    cesr::{
         cigar::Cigar,
         counter::{tables as counter, Counter},
         indexer::Indexer,

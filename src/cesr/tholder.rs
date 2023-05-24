@@ -1,5 +1,5 @@
 use crate::{
-    cesr::core::{
+    cesr::{
         bexter::{tables as bexter, Bext, Bexter},
         matter::{tables as matter, Matter},
         number::{tables as number, Number},
@@ -392,7 +392,7 @@ impl Tholder {
 
 #[cfg(test)]
 mod test {
-    use crate::{cesr::core::tholder::Tholder, dat};
+    use crate::{cesr::tholder::Tholder, dat};
     use rstest::rstest;
 
     #[test]

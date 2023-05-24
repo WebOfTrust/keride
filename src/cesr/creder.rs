@@ -1,9 +1,9 @@
 use crate::{
     cesr::{
-        core::common::{Identage, Ids, Serialage, Version, CURRENT_VERSION},
-        core::matter::tables as matter,
-        core::sadder::Sadder,
-        core::saider::Saider,
+        common::{Identage, Ids, Serialage, Version, CURRENT_VERSION},
+        matter::tables as matter,
+        sadder::Sadder,
+        saider::Saider,
     },
     data::{dat, Value},
     error::{err, Error, Result},
@@ -173,7 +173,7 @@ impl Sadder for Creder {
 #[cfg(test)]
 mod test {
     use crate::{
-        cesr::core::{
+        cesr::{
             common::{versify, Identage, Serialage, CURRENT_VERSION},
             saider::Saider,
         },
