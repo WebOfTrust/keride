@@ -44,4 +44,16 @@ When you find an issue you want to take on:
 For better coordination, join the `#cesr-dev` slack channel using the link at the bottom of
 this document.
 
+## Maintainers
+
+
+keride is a community effort but we acknowledge the significant contirbutions made by the following groups:
+
+[![Qui Identity](https://qui.xyz/wp-content/uploads/2022/07/qui-logo-blue.svg)](https://qui.id)
+
+
+[![Provenant](https://provenant.net/images/provenant-logo.png)](https://provenant.net/)
+
+
+[![GLEIF](https://www.gleif.org/assets/build/img/logo/gleif-logo-new.svg)](https://www.gleif.org)
 
