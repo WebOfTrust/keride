@@ -1,4 +1,4 @@
-use crate::cesr::core::{
+use crate::cesr::{
     common::{loads, sizeify, sniff, Ids, Version, CURRENT_VERSION},
     matter::{tables as matter, Matter},
     saider::Saider,
@@ -214,7 +214,7 @@ pub trait Sadder: Default + Clone {
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::{
+    use crate::cesr::{
         common::{Identage, Serialage, Version, CURRENT_VERSION},
         matter::{tables as matter, Matter},
         sadder::Sadder,

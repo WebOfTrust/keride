@@ -1,5 +1,5 @@
 use crate::{
-    cesr::core::{matter::Matter, seqner::Seqner},
+    cesr::{matter::Matter, seqner::Seqner},
     error::Result,
 };
 

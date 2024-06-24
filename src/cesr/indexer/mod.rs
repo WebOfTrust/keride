@@ -4,8 +4,8 @@ use base64::{engine::general_purpose as b64_engine, Engine};
 
 use crate::{
     cesr::{
-        core::indexer::tables::{BothSigCodex, CurrentSigCodex},
-        core::util,
+        indexer::tables::{BothSigCodex, CurrentSigCodex},
+        util,
     },
     error::{err, Error, Result},
 };
@@ -645,7 +645,7 @@ pub trait Indexer: Default {
 #[cfg(test)]
 mod test {
     use super::tables;
-    use crate::cesr::core::{
+    use crate::cesr::{
         indexer::{tables as indexer, Indexer},
         util,
     };

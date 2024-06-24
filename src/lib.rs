@@ -16,6 +16,7 @@ pub mod prefexing;
 #[cfg(feature = "pathing")]
 pub mod pathing;
 
+pub mod crypto;
 pub mod data;
 pub mod error;
 pub mod messaging;

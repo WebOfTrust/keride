@@ -1,9 +1,10 @@
-use crate::cesr::core::matter::{tables as matter, Matter};
-use crate::cesr::crypto::hash;
+use crate::cesr::matter::{tables as matter, Matter};
+use crate::crypto::hash;
 use crate::error::{err, Error, Result};
 
 /// ```rust
-/// use keride::cesr::{matter, Matter, Diger};
+/// use keride::cesr::matter::{tables as matter, Matter};
+/// use keride::cesr::{diger::Diger};
 /// use std::error::Error;
 /// // here we simply print a qualified digest in base64 to stdout after hashing serialized data
 /// // hash digests underpin core concepts of the KERI ecosystem/
@@ -178,9 +179,9 @@ impl Matter for Diger {
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::diger::Diger;
-    use crate::cesr::core::matter::{tables as matter, Matter};
-    use crate::cesr::crypto::hash;
+    use crate::cesr::diger::Diger;
+    use crate::cesr::matter::{tables as matter, Matter};
+    use crate::crypto::hash;
     use hex_literal::hex;
     use rstest::rstest;
 

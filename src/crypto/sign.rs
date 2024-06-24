@@ -1,4 +1,4 @@
-use crate::cesr::core::matter::tables as matter;
+use crate::cesr::matter::tables as matter;
 use crate::error::{err, Error, Result};
 
 pub(crate) fn generate(code: &str) -> Result<Vec<u8>> {
@@ -194,8 +194,8 @@ mod ecdsa_256r1 {
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::matter::tables as matter;
-    use crate::cesr::crypto::sign;
+    use crate::cesr::matter::tables as matter;
+    use crate::crypto::sign;
     use rstest::rstest;
 
     #[rstest]

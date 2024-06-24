@@ -1,17 +1,17 @@
 use zeroize::{Zeroize, ZeroizeOnDrop};
 
-use crate::cesr::core::{
+use crate::cesr::{
     cigar::Cigar,
     indexer::tables as indexer,
     matter::{tables as matter, Matter},
     siger::Siger,
     verfer::Verfer,
 };
-use crate::cesr::crypto::sign;
+use crate::crypto::sign;
 use crate::error::{err, Error, Result};
 
 /// ```rust
-/// use keride::{signing::Signer, cesr::{Indexer, Matter}};
+/// use keride::{signing::Signer, cesr::{indexer::Indexer, matter::Matter}};
 /// use std::error::Error;
 /// // here we verify that a cigar primitive and a siger primitive have the same underlying
 /// // cryptographic material
@@ -254,7 +254,7 @@ impl Matter for Signer {
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::{
+    use crate::cesr::{
         cigar::Cigar,
         indexer::{tables as indexer, Indexer},
         matter::{tables as matter, Matter},

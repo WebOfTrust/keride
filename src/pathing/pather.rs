@@ -1,5 +1,5 @@
 use crate::{
-    cesr::core::{
+    cesr::{
         bexter::{rawify, tables as bexter, Bext},
         matter::{tables as matter, Matter},
         sadder::Sadder,
@@ -268,7 +268,7 @@ impl Matter for Pather {
 mod test {
     use super::Pather;
     use crate::{
-        cesr::core::{
+        cesr::{
             bexter::Bext,
             matter::{tables as matter, Matter},
             saider::Saider,

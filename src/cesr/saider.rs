@@ -1,6 +1,6 @@
-use crate::cesr::core::common::{deversify, dumps, sizeify, Ids, Serialage, DUMMY};
-use crate::cesr::core::matter::{tables as matter, Matter};
-use crate::cesr::crypto::hash;
+use crate::cesr::common::{deversify, dumps, sizeify, Ids, Serialage, DUMMY};
+use crate::cesr::matter::{tables as matter, Matter};
+use crate::crypto::hash;
 use crate::data::{dat, Value};
 use crate::error::{err, Error, Result};
 
@@ -296,9 +296,9 @@ impl Matter for Saider {
 #[cfg(test)]
 mod test {
     use super::{derive, validate_code};
-    use crate::cesr::core::common::{versify, Identage, Ids, Serialage, Version};
-    use crate::cesr::core::matter::{tables as matter, Matter};
-    use crate::cesr::core::saider::Saider;
+    use crate::cesr::common::{versify, Identage, Ids, Serialage, Version};
+    use crate::cesr::matter::{tables as matter, Matter};
+    use crate::cesr::saider::Saider;
     use crate::data::dat;
     use rstest::rstest;
 

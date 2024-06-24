@@ -1,7 +1,7 @@
 use base64::{engine::general_purpose as b64_engine, Engine};
 use zeroize::{Zeroize, Zeroizing};
 
-use crate::cesr::core::util;
+use crate::cesr::util;
 use crate::error::{err, Error, Result};
 
 pub mod tables;
@@ -516,7 +516,7 @@ pub trait Matter: Default {
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::matter::{tables as matter, Matter};
+    use crate::cesr::matter::{tables as matter, Matter};
     use rstest::rstest;
 
     struct TestMatter {

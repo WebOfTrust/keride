@@ -1,8 +1,8 @@
 use crate::{
     cesr::{
         common::{versify, Ilkage, Serialage, Version, CURRENT_VERSION},
-        core::serder::Serder,
-        Number,
+        number::Number,
+        serder::Serder,
     },
     dat,
     error::Result,

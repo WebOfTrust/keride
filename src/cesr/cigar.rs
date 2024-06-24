@@ -1,5 +1,5 @@
-use crate::cesr::core::matter::{tables as matter, Matter};
-use crate::cesr::core::verfer::Verfer;
+use crate::cesr::matter::{tables as matter, Matter};
+use crate::cesr::verfer::Verfer;
 use crate::error::{err, Error, Result};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -106,9 +106,9 @@ impl Matter for Cigar {
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::cigar::Cigar;
-    use crate::cesr::core::matter::{tables as matter, Matter};
-    use crate::cesr::core::verfer::Verfer;
+    use crate::cesr::cigar::Cigar;
+    use crate::cesr::matter::{tables as matter, Matter};
+    use crate::cesr::verfer::Verfer;
 
     #[test]
     fn convenience() {

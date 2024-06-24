@@ -3,12 +3,10 @@ use zeroize::{Zeroize, ZeroizeOnDrop};
 use crate::signing::signer::Signer;
 use crate::{
     cesr::{
-        core::{
-            common::Tierage,
-            matter::{tables as matter, Matter},
-        },
-        crypto::{csprng, salt},
+        common::Tierage,
+        matter::{tables as matter, Matter},
     },
+    crypto::{csprng, salt},
     error::{err, Error, Result},
 };
 #[derive(Debug, Clone, PartialEq, ZeroizeOnDrop)]
@@ -189,7 +187,7 @@ impl Matter for Salter {
 mod test {
     use crate::signing::signer::Signer;
     use crate::{
-        cesr::core::{
+        cesr::{
             common::{versify, Ilkage, Serialage, Tierage, CURRENT_VERSION},
             matter::{tables as matter, Matter},
             salter::Salter,
@@ -255,7 +253,7 @@ mod test {
     }
 
     use crate::{
-        cesr::core::{
+        cesr::{
             cigar::Cigar,
             common::Version,
             counter::{tables as counter, Counter},

@@ -283,7 +283,7 @@ pub fn nab_sextets(binary: &[u8], count: usize) -> Result<Vec<u8>> {
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::util;
+    use crate::cesr::util;
     use rstest::rstest;
 
     #[rstest]

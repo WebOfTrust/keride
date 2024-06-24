@@ -1,5 +1,5 @@
-use crate::cesr::core::matter::{tables as matter, Matter};
-use crate::cesr::crypto::sign;
+use crate::cesr::matter::{tables as matter, Matter};
+use crate::crypto::sign;
 use crate::error::{err, Error, Result};
 
 #[derive(Debug, Clone, PartialEq)]
@@ -98,8 +98,8 @@ impl Matter for Verfer {
 
 #[cfg(test)]
 mod test {
-    use crate::cesr::core::matter::{tables as matter, Matter};
-    use crate::cesr::core::verfer::Verfer;
+    use crate::cesr::matter::{tables as matter, Matter};
+    use crate::cesr::verfer::Verfer;
     use hex_literal::hex;
 
     #[test]
